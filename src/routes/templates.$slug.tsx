@@ -32,10 +32,9 @@ import { TechBadge } from "@/components/marketplace/tech-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStore } from "@/features/store/store-provider";
-import { categoryBySlug } from "@/lib/catalog/categories";
 import { productFaqs } from "@/lib/catalog/content";
 import { licenses } from "@/lib/catalog/licenses";
-import { productQuery, relatedProductsQuery } from "@/lib/catalog/queries";
+import { categoriesQuery, productQuery, relatedProductsQuery } from "@/lib/catalog/queries";
 import { effectivePrice, formatCompact, formatDate, formatPrice } from "@/lib/catalog/service";
 import { trackRecentlyViewed } from "@/lib/account/service";
 import type { LicenseId } from "@/lib/catalog/types";
@@ -72,7 +71,8 @@ export const Route = createFileRoute("/templates/$slug")({
 
 function ProductDetail() {
   const { product } = Route.useLoaderData();
-  const category = categoryBySlug(product.categorySlug);
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const category = categories.find((c) => c.slug === product.categorySlug);
   const relatedQ = useQuery(relatedProductsQuery(product, 3));
   const related = relatedQ.data ?? [];
   const { addToCart, toggleWishlist, isWishlisted } = useStore();

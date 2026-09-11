@@ -5,7 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { relativeTime } from "@/lib/account/service";
 import type { AccountNotification, NotificationCategory } from "@/lib/account/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 import { cn } from "@/lib/utils";
 
 export const notificationCategoryLabel: Record<NotificationCategory, string> = {
@@ -32,7 +32,10 @@ export function NotificationItem({
   onDismiss: (id: string) => void;
 }) {
   const Icon = categoryIcon[notification.category];
-  const product = notification.productId ? productById(notification.productId) : undefined;
+  const { productsById } = useProductsByIds(
+    notification.productId ? [notification.productId] : [],
+  );
+  const product = notification.productId ? productsById.get(notification.productId) : undefined;
 
   return (
     <article

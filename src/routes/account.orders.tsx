@@ -36,7 +36,7 @@ import {
 import { ordersQuery } from "@/lib/account/queries";
 import type { Order, OrderStatus } from "@/lib/account/types";
 import { licenseById } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 import { formatDate, formatPrice } from "@/lib/catalog/service";
 
 export const Route = createFileRoute("/account/orders")({
@@ -60,6 +60,9 @@ const statusFilters: (OrderStatus | "all")[] = [
 ];
 
 function OrderDetails({ order }: { order: Order }) {
+  const productIds = useMemo(() => order.lines.map((l) => l.productId), [order.lines]);
+  const { productsById } = useProductsByIds(productIds);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-2">
@@ -75,7 +78,7 @@ function OrderDetails({ order }: { order: Order }) {
         <h3 className="text-sm font-semibold">Products</h3>
         <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
           {order.lines.map((line) => {
-            const product = productById(line.productId);
+            const product = productsById.get(line.productId);
             return (
               <li key={`${line.productId}-${line.license}`} className="flex gap-3 p-3">
                 <div className="w-24 shrink-0">{product && <ProductThumb product={product} />}</div>
@@ -172,6 +175,11 @@ function OrdersPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [openId, setOpenId] = useState<string | null>(null);
+  const productIds = useMemo(
+    () => [...new Set((ordersQ.data ?? []).flatMap((o) => o.lines.map((l) => l.productId)))],
+    [ordersQ.data],
+  );
+  const { productsById } = useProductsByIds(productIds);
 
   const orders = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -179,12 +187,12 @@ function OrdersPage() {
       if (status !== "all" && o.status !== status) return false;
       if (!term) return true;
       const names = o.lines
-        .map((l) => productById(l.productId)?.name ?? "")
+        .map((l) => productsById.get(l.productId)?.name ?? "")
         .join(" ")
         .toLowerCase();
       return `${o.reference} ${o.invoiceNumber} ${names}`.toLowerCase().includes(term);
     });
-  }, [ordersQ.data, search, status]);
+  }, [ordersQ.data, search, status, productsById]);
 
   const selected = (ordersQ.data ?? []).find((o) => o.id === openId) ?? null;
 
@@ -280,7 +288,7 @@ function OrdersPage() {
                       </td>
                       <td className="px-5 py-3 text-xs">
                         {order.lines
-                          .map((l) => productById(l.productId)?.name ?? "Template")
+                          .map((l) => productsById.get(l.productId)?.name ?? "Template")
                           .join(", ")}
                       </td>
                       <td className="px-5 py-3 text-xs text-muted-foreground">
@@ -319,7 +327,7 @@ function OrdersPage() {
                   </div>
                   <p className="text-sm">
                     {order.lines
-                      .map((l) => productById(l.productId)?.name ?? "Template")
+                      .map((l) => productsById.get(l.productId)?.name ?? "Template")
                       .join(", ")}
                   </p>
                   <p className="text-xs text-muted-foreground">

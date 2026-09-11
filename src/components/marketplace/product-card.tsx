@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, Eye, Heart, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
@@ -9,7 +10,7 @@ import { RatingStars } from "@/components/marketplace/rating-stars";
 import { TechBadge } from "@/components/marketplace/tech-badge";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/features/store/store-provider";
-import { categoryBySlug } from "@/lib/catalog/categories";
+import { categoriesQuery } from "@/lib/catalog/queries";
 import { formatCompact } from "@/lib/catalog/service";
 import type { Product } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
@@ -24,7 +25,8 @@ export function ProductCard({
   compact?: boolean;
 }) {
   const { addToCart, toggleWishlist, isWishlisted } = useStore();
-  const category = categoryBySlug(product.categorySlug);
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const category = categories.find((c) => c.slug === product.categorySlug);
   const saved = isWishlisted(product.id);
 
   return (

@@ -11,7 +11,7 @@ import {
   ScrollText,
   Search,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,7 +39,7 @@ import {
 import { accountKeys, ordersQuery, purchasesQuery, ticketsQuery } from "@/lib/account/queries";
 import { createSupportTicket, formatDateTime } from "@/lib/account/service";
 import type { TicketCategory } from "@/lib/account/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/account/support")({
   head: () => ({
@@ -106,6 +106,11 @@ function SupportPage() {
   const ticketsQ = useQuery(ticketsQuery());
   const purchasesQ = useQuery(purchasesQuery());
   const ordersQ = useQuery(ordersQuery());
+  const purchaseProductIds = useMemo(
+    () => (purchasesQ.data ?? []).map((p) => p.productId),
+    [purchasesQ.data],
+  );
+  const { productsById } = useProductsByIds(purchaseProductIds);
   const [articleSearch, setArticleSearch] = useState("");
 
   const {
@@ -289,7 +294,7 @@ function SupportPage() {
                     ))}
                     {(purchasesQ.data ?? []).map((p) => (
                       <SelectItem key={p.id} value={p.productId}>
-                        {productById(p.productId)?.name ?? "Template"}
+                        {productsById.get(p.productId)?.name ?? "Template"}
                       </SelectItem>
                     ))}
                   </SelectContent>

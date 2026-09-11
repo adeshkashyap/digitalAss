@@ -27,14 +27,12 @@ import {
   paymentStatusTone,
   type Column,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { paymentsQuery } from "@/lib/admin/queries";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/admin/service";
 import type { AdminTransaction, PaymentStatus } from "@/lib/admin/types";
 
 export const Route = createFileRoute("/admin/payments")({ component: AdminPayments });
-
-const customerName = (id: string) => adminCustomers.find((c) => c.id === id)?.name ?? id;
 
 const providerLabel: Record<AdminTransaction["provider"], string> = {
   "stripe-placeholder": "Card (placeholder)",
@@ -43,6 +41,7 @@ const providerLabel: Record<AdminTransaction["provider"], string> = {
 
 function AdminPayments() {
   const { data, isPending, isError, refetch } = useQuery(paymentsQuery());
+  const customerMap = useAdminCustomerMap();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<PaymentStatus | "all">("all");
 
@@ -52,10 +51,13 @@ function AdminPayments() {
       .filter((t) => (status === "all" ? true : t.status === status))
       .filter((t) =>
         q
-          ? [t.reference, t.orderId, customerName(t.customerId)].join(" ").toLowerCase().includes(q)
+          ? [t.reference, t.orderId, customerMap.get(t.customerId)?.name ?? t.customerId]
+              .join(" ")
+              .toLowerCase()
+              .includes(q)
           : true,
       );
-  }, [data, search, status]);
+  }, [data, search, status, customerMap]);
 
   const settled = (data ?? []).filter((t) => t.status === "succeeded");
   const volume = settled.reduce((s, t) => s + t.amount, 0);
@@ -86,7 +88,7 @@ function AdminPayments() {
           params={{ customerId: t.customerId }}
           className="block truncate text-sm transition-colors hover:text-brand"
         >
-          {customerName(t.customerId)}
+          {customerMap.get(t.customerId)?.name ?? t.customerId}
         </Link>
       ),
     },
@@ -226,7 +228,7 @@ function AdminPayments() {
                     {paymentStatusLabel[t.status]}
                   </StatusBadge>
                 </div>
-                <p className="truncate text-sm">{customerName(t.customerId)}</p>
+                <p className="truncate text-sm">{customerMap.get(t.customerId)?.name ?? t.customerId}</p>
                 <p className="text-xs text-muted-foreground">
                   {providerLabel[t.provider]} · {formatDateTime(t.at)}
                 </p>

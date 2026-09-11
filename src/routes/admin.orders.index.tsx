@@ -26,7 +26,7 @@ import {
   type Column,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { adminOrdersQuery } from "@/lib/admin/queries";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/admin/service";
 import type { AdminOrder, AdminOrderStatus } from "@/lib/admin/types";
@@ -42,10 +42,10 @@ const orderTone: Record<AdminOrderStatus, Tone> = {
 };
 
 const label = (value: string) => value[0]!.toUpperCase() + value.slice(1);
-const customer = (id: string) => adminCustomers.find((c) => c.id === id);
 
 function AdminOrders() {
   const { data, isPending, isError, refetch } = useQuery(adminOrdersQuery());
+  const customerMap = useAdminCustomerMap();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<AdminOrderStatus | "all">("all");
 
@@ -55,14 +55,14 @@ function AdminOrders() {
       .filter((o) => (status === "all" ? true : o.status === status))
       .filter((o) => {
         if (!q) return true;
-        const c = customer(o.customerId);
+        const c = customerMap.get(o.customerId);
         return [o.reference, o.invoiceNumber, c?.name, c?.email, o.couponCode]
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
           .includes(q);
       });
-  }, [data, search, status]);
+  }, [data, search, status, customerMap]);
 
   const paid = (data ?? []).filter((o) => o.status === "paid");
   const gross = paid.reduce((s, o) => s + o.total, 0);
@@ -88,7 +88,7 @@ function AdminOrders() {
       key: "customer",
       header: "Customer",
       cell: (o) => {
-        const c = customer(o.customerId);
+        const c = customerMap.get(o.customerId);
         return (
           <div className="min-w-0">
             <Link

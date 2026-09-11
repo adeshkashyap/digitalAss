@@ -1,10 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, BadgeCheck, Download, RefreshCw } from "lucide-react";
 
 import { TechBadge } from "@/components/marketplace/tech-badge";
 import { Button } from "@/components/ui/button";
 import { ProductThumb, StatusBadge } from "./account-ui";
-import { categoryBySlug } from "@/lib/catalog/categories";
+import { categoriesQuery } from "@/lib/catalog/queries";
 import { formatDate, formatPrice } from "@/lib/catalog/service";
 import { licenseById } from "@/lib/catalog/licenses";
 import type { Purchase } from "@/lib/account/types";
@@ -37,7 +38,8 @@ export function ProductLibraryCard({
   className?: string;
 }) {
   const { purchase, product, updateAvailable } = entry;
-  const category = categoryBySlug(product.categorySlug);
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const category = categories.find((c) => c.slug === product.categorySlug);
 
   return (
     <article
@@ -121,7 +123,8 @@ export function PurchaseRow({
   onDownload: (entry: LibraryEntry) => void;
 }) {
   const { purchase, product, updateAvailable } = entry;
-  const category = categoryBySlug(product.categorySlug);
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const category = categories.find((c) => c.slug === product.categorySlug);
 
   return (
     <article className="flex flex-col gap-4 px-4 py-4 transition-colors hover:bg-surface-2/30 sm:flex-row sm:items-center sm:px-5">

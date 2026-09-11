@@ -20,7 +20,7 @@ import { useDownloadAction } from "@/features/account/use-download";
 import { downloadHistoryQuery, downloadsQuery } from "@/lib/account/queries";
 import { formatDateTime } from "@/lib/account/service";
 import type { DownloadEvent } from "@/lib/account/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/account/downloads")({
   head: () => ({
@@ -50,15 +50,22 @@ function DownloadsPage() {
   const historyQ = useQuery(downloadHistoryQuery());
   const { download, pendingFileId } = useDownloadAction();
   const [search, setSearch] = useState("");
+  const productIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const item of downloadsQ.data ?? []) ids.add(item.productId);
+    for (const event of historyQ.data ?? []) ids.add(event.productId);
+    return [...ids];
+  }, [downloadsQ.data, historyQ.data]);
+  const { productsById } = useProductsByIds(productIds);
 
   const items = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (downloadsQ.data ?? []).filter((item) => {
       if (!term) return true;
-      const product = productById(item.productId);
+      const product = productsById.get(item.productId);
       return `${product?.name ?? ""} ${product?.tech.join(" ") ?? ""}`.toLowerCase().includes(term);
     });
-  }, [downloadsQ.data, search]);
+  }, [downloadsQ.data, search, productsById]);
 
   const readyCount = items.reduce((n, i) => n + i.files.length, 0);
   const updates = items.filter((i) => i.updateAvailable);
@@ -154,7 +161,7 @@ function DownloadsPage() {
         ) : (
           <div className="divide-y divide-border">
             {items.map((item) => {
-              const product = productById(item.productId);
+              const product = productsById.get(item.productId);
               if (!product) return null;
               return (
                 <DownloadRow
@@ -197,7 +204,7 @@ function DownloadsPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {(historyQ.data ?? []).map((event) => {
-                  const product = productById(event.productId);
+                  const product = productsById.get(event.productId);
                   const meta = historyStatus[event.status];
                   return (
                     <tr key={event.id} className="transition-colors hover:bg-surface-2/30">

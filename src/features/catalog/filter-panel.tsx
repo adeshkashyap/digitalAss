@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
+import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { allTags, allTech } from "@/lib/catalog/products";
-import { categoriesQuery } from "@/lib/catalog/queries";
+import { catalogFacetsQuery, categoriesQuery } from "@/lib/catalog/queries";
 import { formatPrice } from "@/lib/catalog/service";
 import { cn } from "@/lib/utils";
 
@@ -37,18 +37,16 @@ export const activeFilterCount = (f: CatalogFilters) =>
   (f.minRating > 0 ? 1 : 0) +
   (f.maxPrice < MAX_PRICE ? 1 : 0);
 
-const featureOptions = allTags.filter((t) =>
-  [
-    "dark mode",
-    "checkout",
-    "booking",
-    "charts",
-    "data tables",
-    "accessible",
-    "multi-language ready",
-    "rbac",
-  ].includes(t),
-);
+const featureTagIds = [
+  "dark mode",
+  "checkout",
+  "booking",
+  "charts",
+  "data tables",
+  "accessible",
+  "multi-language ready",
+  "rbac",
+];
 
 function Group({
   title,
@@ -111,7 +109,14 @@ export function FilterPanel({
   className?: string;
 }) {
   const { data: categories = [] } = useQuery(categoriesQuery());
+  const { data: facets } = useQuery(catalogFacetsQuery());
   const counts = Object.fromEntries(categories.map((c) => [c.slug, c.count]));
+  const allTech = facets?.tech ?? [];
+  const facetMaxPrice = facets?.maxPrice ?? MAX_PRICE;
+  const featureOptions = useMemo(
+    () => (facets?.tags ?? []).filter((t) => featureTagIds.includes(t)),
+    [facets?.tags],
+  );
 
   const set = <K extends keyof CatalogFilters>(key: K, value: CatalogFilters[K]) =>
     onChange({ ...filters, [key]: value });
@@ -167,16 +172,16 @@ export function FilterPanel({
           <Slider
             value={[filters.maxPrice]}
             min={30}
-            max={MAX_PRICE}
+            max={facetMaxPrice}
             step={5}
-            onValueChange={([v]) => set("maxPrice", v ?? MAX_PRICE)}
+            onValueChange={([v]) => set("maxPrice", v ?? facetMaxPrice)}
             aria-label="Maximum price"
           />
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <span>{formatPrice(30)}</span>
             <span className="font-medium text-foreground">
               Up to {formatPrice(filters.maxPrice)}
-              {filters.maxPrice === MAX_PRICE ? "+" : ""}
+              {filters.maxPrice === facetMaxPrice ? "+" : ""}
             </span>
           </div>
         </div>

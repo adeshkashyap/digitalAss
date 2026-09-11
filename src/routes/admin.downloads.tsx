@@ -26,12 +26,12 @@ import {
   type Column,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { adminDownloadsQuery } from "@/lib/admin/queries";
 import { formatDateTime } from "@/lib/admin/service";
 import type { AdminDownloadEvent } from "@/lib/admin/types";
 import { licenses } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/downloads")({ component: AdminDownloads });
 
@@ -47,11 +47,16 @@ const label: Record<AdminDownloadEvent["status"], string> = {
   review: "Needs review",
 };
 
-const customerName = (id: string) => adminCustomers.find((c) => c.id === id)?.name ?? id;
 const licenseName = (id: string) => licenses.find((l) => l.id === id)?.name ?? id;
 
 function AdminDownloads() {
   const { data, isPending, isError, refetch } = useQuery(adminDownloadsQuery());
+  const customerMap = useAdminCustomerMap();
+  const productIds = useMemo(
+    () => [...new Set((data ?? []).map((d) => d.productId))],
+    [data],
+  );
+  const { productsById } = useProductsByIds(productIds);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | AdminDownloadEvent["status"]>("all");
 
@@ -61,14 +66,18 @@ function AdminDownloads() {
       .filter((d) => (status === "all" ? true : d.status === status))
       .filter((d) =>
         q
-          ? [d.fileLabel, productById(d.productId)?.name, customerName(d.customerId)]
+          ? [
+              d.fileLabel,
+              productsById.get(d.productId)?.name,
+              customerMap.get(d.customerId)?.name ?? d.customerId,
+            ]
               .filter(Boolean)
               .join(" ")
               .toLowerCase()
               .includes(q)
           : true,
       );
-  }, [data, search, status]);
+  }, [data, search, status, productsById, customerMap]);
 
   const counts = {
     completed: (data ?? []).filter((d) => d.status === "completed").length,
@@ -107,7 +116,7 @@ function AdminDownloads() {
           params={{ productId: d.productId }}
           className="text-sm transition-colors hover:text-brand"
         >
-          {productById(d.productId)?.name ?? d.productId}
+          {productsById.get(d.productId)?.name ?? d.productId}
         </Link>
       ),
     },
@@ -120,7 +129,7 @@ function AdminDownloads() {
           params={{ customerId: d.customerId }}
           className="text-sm transition-colors hover:text-brand"
         >
-          {customerName(d.customerId)}
+          {customerMap.get(d.customerId)?.name ?? d.customerId}
         </Link>
       ),
     },
@@ -225,7 +234,8 @@ function AdminDownloads() {
                   <StatusBadge tone={tone[d.status]}>{label[d.status]}</StatusBadge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {productById(d.productId)?.name ?? d.productId} · {customerName(d.customerId)}
+                  {productsById.get(d.productId)?.name ?? d.productId} ·{" "}
+                  {customerMap.get(d.customerId)?.name ?? d.customerId}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {d.fileType} · {d.size} · {licenseName(d.license)} · {formatDateTime(d.at)}

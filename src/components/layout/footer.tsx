@@ -1,8 +1,9 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Github, Linkedin, Twitter, Youtube } from "lucide-react";
 
 import { Logo } from "@/components/layout/logo";
-import { categories } from "@/lib/catalog/categories";
+import { categoriesQuery } from "@/lib/catalog/queries";
 
 const columns: { title: string; links: { label: string; to?: string; soon?: boolean }[] }[] = [
   {
@@ -51,6 +52,8 @@ const socials = [
 ];
 
 export function Footer() {
+  const { data: categories = [] } = useQuery(categoriesQuery());
+
   return (
     <footer className="border-t border-border bg-surface/40">
       <div className="shell py-14 lg:py-16">

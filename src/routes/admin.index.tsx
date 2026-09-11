@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import {
   AlertTriangle,
   ArrowUpRight,
@@ -29,11 +30,11 @@ import {
   TableSkeleton,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { dashboardQuery } from "@/lib/admin/queries";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/admin/service";
 import type { AdminOrderStatus, ReportRange } from "@/lib/admin/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/")({ component: AdminOverview });
 
@@ -57,11 +58,15 @@ const ranges: { value: ReportRange; label: string }[] = [
   { value: "90d", label: "90 days" },
 ];
 
-const customerName = (id: string) => adminCustomers.find((c) => c.id === id)?.name ?? "Customer";
-
 function AdminOverview() {
   const [range, setRange] = useState<ReportRange>("30d");
   const { data, isPending, isError, refetch } = useQuery(dashboardQuery(range));
+  const customerMap = useAdminCustomerMap();
+  const productIds = useMemo(
+    () => [...new Set((data?.topProducts ?? []).map((row) => row.productId))],
+    [data?.topProducts],
+  );
+  const { productsById } = useProductsByIds(productIds);
 
   return (
     <>
@@ -217,7 +222,7 @@ function AdminOverview() {
               />
               <ul className="divide-y divide-border">
                 {data.topProducts.map((row, i) => {
-                  const product = productById(row.productId);
+                  const product = productsById.get(row.productId);
                   return (
                     <li key={row.productId} className="flex items-center gap-4 px-5 py-3.5">
                       <span className="font-mono text-xs text-muted-foreground">
@@ -267,7 +272,8 @@ function AdminOverview() {
                         {order.reference}
                       </Link>
                       <p className="truncate text-xs text-muted-foreground">
-                        {customerName(order.customerId)} · {formatDateTime(order.placedAt)}
+                        {customerMap.get(order.customerId)?.name ?? "Customer"} ·{" "}
+                        {formatDateTime(order.placedAt)}
                       </p>
                     </div>
                     <StatusBadge tone={orderTone[order.status]}>

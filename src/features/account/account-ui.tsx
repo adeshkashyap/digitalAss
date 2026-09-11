@@ -305,15 +305,6 @@ export function StatsSkeleton() {
 
 /* ------------------------------------------------------------ demo notice */
 
-export function DemoNote({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <p
-      className={cn(
-        "rounded-md border border-border bg-surface-2/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground",
-        className,
-      )}
-    >
-      {children}
-    </p>
-  );
+export function DemoNote(_props: { children: ReactNode; className?: string }) {
+  return null;
 }

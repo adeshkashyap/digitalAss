@@ -491,34 +491,12 @@ export function ProductCell({ product }: { product: AdminProduct }) {
 
 /* --------------------------------------------------------------- notices */
 
-export function NotConnectedBanner({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div
-      role="note"
-      className="flex flex-wrap items-start gap-3 rounded-lg border border-warning/35 bg-warning/[0.07] px-4 py-3"
-    >
-      <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-md border border-warning/40 bg-warning/10 text-warning">
-        <PlugZap className="h-3.5 w-3.5" aria-hidden />
-      </span>
-      <div className="min-w-0">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{children}</p>
-      </div>
-    </div>
-  );
+export function NotConnectedBanner(_props: { title: string; children: ReactNode }) {
+  return null;
 }
 
-export function DemoNote({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <p
-      className={cn(
-        "rounded-md border border-border bg-surface-2/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground",
-        className,
-      )}
-    >
-      {children}
-    </p>
-  );
+export function DemoNote(_props: { children: ReactNode; className?: string }) {
+  return null;
 }
 
 /* ----------------------------------------------------------------- states */

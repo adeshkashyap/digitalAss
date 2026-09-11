@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Layers, LayoutTemplate, Receipt, Sparkles } from "lucide-react";
@@ -12,8 +13,7 @@ import {
   CommandSeparator,
 } from "@/components/ui/command";
 import { DialogTitle } from "@/components/ui/dialog";
-import { categories } from "@/lib/catalog/categories";
-import { products } from "@/lib/catalog/products";
+import { catalogProductsQuery, categoriesQuery } from "@/lib/catalog/queries";
 import { formatPrice } from "@/lib/catalog/service";
 
 export function useCommandShortcut(setOpen: (open: boolean) => void) {
@@ -37,6 +37,9 @@ export function SearchCommand({
   onOpenChange: (open: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const { data: catalog } = useQuery(catalogProductsQuery({ perPage: 50 }));
+  const products = catalog?.items ?? [];
 
   const go = (fn: () => void) => {
     onOpenChange(false);

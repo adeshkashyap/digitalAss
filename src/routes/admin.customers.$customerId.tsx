@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Ban, Download, Heart, KeyRound, LifeBuoy, Mail, Receipt, Users } from "lucide-react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
@@ -22,7 +23,7 @@ import { adminCustomerQuery } from "@/lib/admin/queries";
 import { formatDateTime, formatMoney, formatNumber } from "@/lib/admin/service";
 import type { AdminOrderStatus } from "@/lib/admin/types";
 import { licenseById } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/customers/$customerId")({
   component: AdminCustomerDetailPage,
@@ -44,6 +45,15 @@ const demo = (label: string) => () =>
 function AdminCustomerDetailPage() {
   const { customerId } = Route.useParams();
   const { data, isPending, isError, refetch } = useQuery(adminCustomerQuery(customerId));
+  const productIds = useMemo(() => {
+    if (!data) return [];
+    const ids = new Set<string>();
+    for (const license of data.licenses) ids.add(license.productId);
+    for (const event of data.downloads) ids.add(event.productId);
+    for (const id of data.wishlist) ids.add(id);
+    return [...ids];
+  }, [data]);
+  const { productsById } = useProductsByIds(productIds);
 
   if (isError) {
     return (
@@ -194,7 +204,7 @@ function AdminCustomerDetailPage() {
                             params={{ productId: license.productId }}
                             className="block truncate text-sm font-medium transition-colors hover:text-brand"
                           >
-                            {productById(license.productId)?.name ?? license.productId}
+                            {productsById.get(license.productId)?.name ?? license.productId}
                           </Link>
                           <p className="font-mono text-[11px] text-muted-foreground">
                             {license.id} · purchased {license.purchasedAt}
@@ -228,7 +238,7 @@ function AdminCustomerDetailPage() {
                       <li key={event.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm">
-                            {productById(event.productId)?.name ?? event.productId}
+                            {productsById.get(event.productId)?.name ?? event.productId}
                           </p>
                           <p className="font-mono text-[11px] text-muted-foreground">
                             {event.fileLabel} · v{event.version} · {formatDateTime(event.at)}
@@ -271,10 +281,12 @@ function AdminCustomerDetailPage() {
                         params={{ productId: id }}
                         className="min-w-0 flex-1 truncate text-sm transition-colors hover:text-brand"
                       >
-                        {productById(id)?.name ?? id}
+                        {productsById.get(id)?.name ?? id}
                       </Link>
                       <span className="font-mono text-sm tabular-nums">
-                        {formatMoney(productById(id)?.salePrice ?? productById(id)?.price ?? 0)}
+                        {formatMoney(
+                          productsById.get(id)?.salePrice ?? productsById.get(id)?.price ?? 0,
+                        )}
                       </span>
                     </li>
                   ))}

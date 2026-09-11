@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo } from "react";
 import {
   ArrowUpRight,
   BookOpen,
@@ -33,8 +34,9 @@ import { useDownloadAction } from "@/features/account/use-download";
 import { useStore } from "@/features/store/store-provider";
 import { downloadsQuery, ordersQuery, purchasesQuery, userQuery } from "@/lib/account/queries";
 import { getRecentlyViewedSlugs, purchaseHasUpdate } from "@/lib/account/service";
-import { productById, productBySlug } from "@/lib/catalog/products";
-import { formatDate, formatPrice } from "@/lib/catalog/service";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
+import { formatDate, formatPrice, getProduct } from "@/lib/catalog/service";
+import { catalogKeys } from "@/lib/catalog/queries";
 import { licenseById } from "@/lib/catalog/licenses";
 
 export const Route = createFileRoute("/account/")({
@@ -68,9 +70,18 @@ function AccountOverview() {
 
   const purchases = purchasesQ.data ?? [];
   const active = purchases.filter((p) => !p.archived);
+  const productIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const purchase of purchases) ids.add(purchase.productId);
+    for (const id of wishlist) ids.add(id);
+    for (const item of downloadsQ.data ?? []) ids.add(item.productId);
+    return [...ids];
+  }, [purchases, wishlist, downloadsQ.data]);
+  const { productsById } = useProductsByIds(productIds);
+
   const entries = active
     .map((purchase) => {
-      const product = productById(purchase.productId);
+      const product = productsById.get(purchase.productId);
       return product
         ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase, product.version) }
         : null;
@@ -79,13 +90,20 @@ function AccountOverview() {
 
   const firstName = userQ.data?.name.split(" ")[0] ?? "there";
   const wishlistProducts = wishlist
-    .map((id) => productById(id))
+    .map((id) => productsById.get(id))
     .filter((p): p is NonNullable<typeof p> => !!p)
     .slice(0, 3);
-  const recentlyViewed = getRecentlyViewedSlugs()
-    .map((slug) => productBySlug(slug))
-    .filter((p): p is NonNullable<typeof p> => !!p)
-    .slice(0, 4);
+  const recentSlugs = getRecentlyViewedSlugs().slice(0, 4);
+  const recentProductQueries = useQueries({
+    queries: recentSlugs.map((slug) => ({
+      queryKey: catalogKeys.product(slug),
+      queryFn: () => getProduct(slug),
+      staleTime: 5 * 60_000,
+    })),
+  });
+  const recentlyViewed = recentProductQueries
+    .map((query) => query.data)
+    .filter((product): product is NonNullable<typeof product> => !!product);
 
   return (
     <div className="space-y-8">
@@ -324,7 +342,7 @@ function AccountOverview() {
             ) : (
               <ul className="divide-y divide-border">
                 {(downloadsQ.data ?? []).slice(0, 4).map((item) => {
-                  const product = productById(item.productId);
+                  const product = productsById.get(item.productId);
                   const file = item.files[0]!;
                   if (!product) return null;
                   return (

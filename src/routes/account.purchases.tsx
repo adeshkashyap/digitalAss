@@ -19,7 +19,7 @@ import type { LibraryEntry } from "@/features/account/library-card";
 import { useDownloadAction } from "@/features/account/use-download";
 import { purchasesQuery } from "@/lib/account/queries";
 import { purchaseHasUpdate } from "@/lib/account/service";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 import { licenseById } from "@/lib/catalog/licenses";
 import { cn } from "@/lib/utils";
 
@@ -55,17 +55,23 @@ function PurchasesPage() {
   const [sort, setSort] = useState<SortKey>("purchased");
   const [view, setView] = useState<"grid" | "list">("grid");
 
+  const productIds = useMemo(
+    () => (purchasesQ.data ?? []).map((p) => p.productId),
+    [purchasesQ.data],
+  );
+  const { productsById } = useProductsByIds(productIds);
+
   const entries = useMemo<LibraryEntry[]>(
     () =>
       (purchasesQ.data ?? [])
         .map((purchase) => {
-          const product = productById(purchase.productId);
+          const product = productsById.get(purchase.productId);
           return product
             ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase) }
             : null;
         })
         .filter((e): e is LibraryEntry => e !== null),
-    [purchasesQ.data],
+    [purchasesQ.data, productsById],
   );
 
   const visible = useMemo(() => {

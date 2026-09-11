@@ -23,7 +23,7 @@ import { LicenseCard, LicenseDetailsDialog } from "@/features/account/license-ca
 import { licensesQuery } from "@/lib/account/queries";
 import type { LicenseRecord } from "@/lib/account/types";
 import { licenses } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/account/licenses")({
   head: () => ({
@@ -44,16 +44,21 @@ function LicensesPage() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("all");
   const [selected, setSelected] = useState<LicenseRecord | null>(null);
+  const productIds = useMemo(
+    () => (licensesQ.data ?? []).map((r) => r.productId),
+    [licensesQ.data],
+  );
+  const { productsById } = useProductsByIds(productIds);
 
   const records = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (licensesQ.data ?? []).filter((r) => {
       if (type !== "all" && r.type !== type) return false;
       if (!term) return true;
-      const name = productById(r.productId)?.name ?? "";
+      const name = productsById.get(r.productId)?.name ?? "";
       return `${name} ${r.reference}`.toLowerCase().includes(term);
     });
-  }, [licensesQ.data, search, type]);
+  }, [licensesQ.data, search, type, productsById]);
 
   return (
     <div className="space-y-6">
@@ -115,7 +120,7 @@ function LicensesPage() {
       ) : (
         <div className="space-y-4">
           {records.map((record) => {
-            const product = productById(record.productId);
+            const product = productsById.get(record.productId);
             if (!product) return null;
             return (
               <LicenseCard key={record.id} record={record} product={product} onView={setSelected} />
@@ -131,7 +136,7 @@ function LicensesPage() {
 
       <LicenseDetailsDialog
         record={selected}
-        product={selected ? productById(selected.productId) : undefined}
+        product={selected ? productsById.get(selected.productId) : undefined}
         open={!!selected}
         onOpenChange={(open) => !open && setSelected(null)}
       />

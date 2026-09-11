@@ -26,11 +26,11 @@ import {
   type Column,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { issuedLicensesQuery } from "@/lib/admin/queries";
 import type { IssuedLicense } from "@/lib/admin/service";
 import { licenses } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/licenses")({ component: AdminLicenses });
 
@@ -46,11 +46,16 @@ const label: Record<IssuedLicense["status"], string> = {
   revoked: "Revoked",
 };
 
-const customerName = (id: string) => adminCustomers.find((c) => c.id === id)?.name ?? id;
 const licenseName = (id: string) => licenses.find((l) => l.id === id)?.name ?? id;
 
 function AdminLicenses() {
   const { data, isPending, isError, refetch } = useQuery(issuedLicensesQuery());
+  const customerMap = useAdminCustomerMap();
+  const productIds = useMemo(
+    () => [...new Set((data ?? []).map((l) => l.productId))],
+    [data],
+  );
+  const { productsById } = useProductsByIds(productIds);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | IssuedLicense["status"]>("all");
   const [type, setType] = useState<string>("all");
@@ -65,8 +70,8 @@ function AdminLicenses() {
           ? [
               l.reference,
               l.orderReference,
-              productById(l.productId)?.name,
-              customerName(l.customerId),
+              productsById.get(l.productId)?.name,
+              customerMap.get(l.customerId)?.name ?? l.customerId,
             ]
               .filter(Boolean)
               .join(" ")
@@ -74,7 +79,7 @@ function AdminLicenses() {
               .includes(q)
           : true,
       );
-  }, [data, search, status, type]);
+  }, [data, search, status, type, productsById, customerMap]);
 
   const counts = {
     active: (data ?? []).filter((l) => l.status === "active").length,
@@ -102,7 +107,7 @@ function AdminLicenses() {
           params={{ productId: l.productId }}
           className="text-sm transition-colors hover:text-brand"
         >
-          {productById(l.productId)?.name ?? l.productId}
+          {productsById.get(l.productId)?.name ?? l.productId}
         </Link>
       ),
     },
@@ -115,7 +120,7 @@ function AdminLicenses() {
           params={{ customerId: l.customerId }}
           className="text-sm transition-colors hover:text-brand"
         >
-          {customerName(l.customerId)}
+          {customerMap.get(l.customerId)?.name ?? l.customerId}
         </Link>
       ),
     },
@@ -241,9 +246,10 @@ function AdminLicenses() {
                   <p className="font-mono text-xs font-medium">{l.reference}</p>
                   <StatusBadge tone={tone[l.status]}>{label[l.status]}</StatusBadge>
                 </div>
-                <p className="text-sm">{productById(l.productId)?.name ?? l.productId}</p>
+                <p className="text-sm">{productsById.get(l.productId)?.name ?? l.productId}</p>
                 <p className="text-xs text-muted-foreground">
-                  {licenseName(l.type)} · {customerName(l.customerId)} · {l.orderReference}
+                  {licenseName(l.type)} · {customerMap.get(l.customerId)?.name ?? l.customerId} ·{" "}
+                  {l.orderReference}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   v{l.version.replace(/^v/, "")} · updates until {l.updatesUntil}

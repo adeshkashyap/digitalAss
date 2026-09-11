@@ -516,8 +516,8 @@ function CheckoutPage() {
             grandTotal={grandTotal}
             code={code}
             setCode={setCode}
-            onApplyCode={(value) => {
-              const res = store.applyDiscount(value);
+            onApplyCode={async (value) => {
+              const res = await store.applyDiscount(value);
               if (res.ok) {
                 toast.success(res.message);
                 setCode("");
@@ -552,7 +552,7 @@ function CheckoutSummary({
   grandTotal: number;
   code?: string;
   setCode?: (v: string) => void;
-  onApplyCode?: (code: string) => void;
+  onApplyCode?: (code: string) => void | Promise<void>;
   compact?: boolean;
 }) {
   return (
@@ -589,7 +589,7 @@ function CheckoutSummary({
           className="mt-5 flex gap-2 border-t border-border pt-5"
           onSubmit={(e) => {
             e.preventDefault();
-            onApplyCode(code);
+            void onApplyCode(code);
           }}
         >
           <label htmlFor="checkout-discount" className="sr-only">

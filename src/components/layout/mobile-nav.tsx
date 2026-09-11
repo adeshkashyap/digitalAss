@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { useRef, useState } from "react";
@@ -5,7 +6,7 @@ import { useRef, useState } from "react";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { categories } from "@/lib/catalog/categories";
+import { categoriesQuery } from "@/lib/catalog/queries";
 
 const links = [
   { to: "/templates", label: "All templates" },
@@ -17,6 +18,7 @@ const links = [
 ] as const;
 
 export function MobileNav() {
+  const { data: categories = [] } = useQuery(categoriesQuery());
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
 

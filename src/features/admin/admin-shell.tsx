@@ -30,7 +30,7 @@ import {
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "@/features/theme/theme-provider";
 import { adminUserQuery, dashboardQuery, reviewsQuery } from "@/lib/admin/queries";
-import { roleLabels } from "@/lib/admin/mock-data";
+import { roleLabels } from "@/lib/admin/constants";
 import { adminNav, adminNavItems } from "./nav";
 
 function initials(name: string) {

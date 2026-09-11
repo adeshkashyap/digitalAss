@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Heart, Search, ShoppingCart, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -23,8 +24,8 @@ import {
   StatusBadge,
 } from "@/features/account/account-ui";
 import { useStore } from "@/features/store/store-provider";
-import { categories, categoryBySlug } from "@/lib/catalog/categories";
-import { productById } from "@/lib/catalog/products";
+import { categoriesQuery } from "@/lib/catalog/queries";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/account/wishlist")({
   head: () => ({
@@ -41,10 +42,12 @@ function WishlistPage() {
   const { wishlist, hydrated, toggleWishlist, addToCart } = useStore();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const { data: categories = [] } = useQuery(categoriesQuery());
 
+  const { productsById } = useProductsByIds(wishlist);
   const products = useMemo(
-    () => wishlist.map((id) => productById(id)).filter((p): p is NonNullable<typeof p> => !!p),
-    [wishlist],
+    () => wishlist.map((id) => productsById.get(id)).filter((p): p is NonNullable<typeof p> => !!p),
+    [wishlist, productsById],
   );
 
   const visible = useMemo(() => {
@@ -148,7 +151,7 @@ function WishlistPage() {
               <div className="flex flex-1 flex-col gap-3 p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="eyebrow truncate">
-                    {categoryBySlug(product.categorySlug)?.name ?? "Template"}
+                    {categories.find((c) => c.slug === product.categorySlug)?.name ?? "Template"}
                   </span>
                   <RatingStars rating={product.rating} count={product.reviewCount} />
                 </div>

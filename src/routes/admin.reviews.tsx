@@ -20,11 +20,11 @@ import {
   TableSkeleton,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { reviewsQuery } from "@/lib/admin/queries";
 import { formatDateTime, moderateReview } from "@/lib/admin/service";
 import type { ReviewStatus } from "@/lib/admin/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/reviews")({ component: AdminReviews });
 
@@ -40,11 +40,15 @@ const statusLabel: Record<ReviewStatus, string> = {
   rejected: "Rejected",
 };
 
-const author = (id: string) => adminCustomers.find((c) => c.id === id);
-
 function AdminReviews() {
   const queryClient = useQueryClient();
   const { data, isPending, isError, refetch } = useQuery(reviewsQuery());
+  const customerMap = useAdminCustomerMap();
+  const productIds = useMemo(
+    () => [...new Set((data ?? []).map((r) => r.productId))],
+    [data],
+  );
+  const { productsById } = useProductsByIds(productIds);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<ReviewStatus | "all" | "reported">("pending");
 
@@ -65,14 +69,19 @@ function AdminReviews() {
       .filter((r) => (tab === "all" ? true : tab === "reported" ? r.reported : r.status === tab))
       .filter((r) =>
         q
-          ? [r.title, r.body, productById(r.productId)?.name, author(r.customerId)?.name]
+          ? [
+              r.title,
+              r.body,
+              productsById.get(r.productId)?.name,
+              customerMap.get(r.customerId)?.name,
+            ]
               .filter(Boolean)
               .join(" ")
               .toLowerCase()
               .includes(q)
           : true,
       );
-  }, [data, search, tab]);
+  }, [data, search, tab, productsById, customerMap]);
 
   const counts = {
     pending: (data ?? []).filter((r) => r.status === "pending").length,
@@ -141,8 +150,8 @@ function AdminReviews() {
           />
           <ul className="divide-y divide-border">
             {rows.map((review) => {
-              const product = productById(review.productId);
-              const customer = author(review.customerId);
+              const product = productsById.get(review.productId);
+              const customer = customerMap.get(review.customerId);
               return (
                 <li key={review.id} className="space-y-3 px-5 py-5">
                   <div className="flex flex-wrap items-start gap-3">

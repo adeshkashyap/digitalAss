@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CreditCard, Download, FileText, LifeBuoy, Receipt, RotateCcw, User } from "lucide-react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
@@ -19,12 +20,12 @@ import {
   paymentStatusTone,
   type Tone,
 } from "@/features/admin/admin-ui";
-import { adminCustomers } from "@/lib/admin/mock-data";
+import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { adminOrderQuery } from "@/lib/admin/queries";
 import { formatDateTime, formatMoney } from "@/lib/admin/service";
 import type { AdminOrderStatus } from "@/lib/admin/types";
 import { licenseById } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/orders/$orderId")({ component: AdminOrderDetail });
 
@@ -39,6 +40,10 @@ const orderTone: Record<AdminOrderStatus, Tone> = {
 function AdminOrderDetail() {
   const { orderId } = Route.useParams();
   const { data: order, isPending, isError, refetch } = useQuery(adminOrderQuery(orderId));
+  const customerMap = useAdminCustomerMap();
+  const productIds = useMemo(() => order?.lines.map((l) => l.productId) ?? [], [order?.lines]);
+  const { productsById } = useProductsByIds(productIds);
+  const customer = order ? customerMap.get(order.customerId) : undefined;
 
   if (isError) {
     return (
@@ -85,8 +90,6 @@ function AdminOrderDetail() {
       </>
     );
   }
-
-  const customer = adminCustomers.find((c) => c.id === order.customerId);
 
   return (
     <>
@@ -135,7 +138,7 @@ function AdminOrderDetail() {
             />
             <ul className="divide-y divide-border">
               {order.lines.map((line, i) => {
-                const product = productById(line.productId);
+                const product = productsById.get(line.productId);
                 return (
                   <li
                     key={`${line.productId}-${i}`}

@@ -75,6 +75,26 @@ export async function getRelatedProducts(product: Product, limit = 3): Promise<P
   return api.get<Product[]>(`/api/products/${product.slug}/related?limit=${limit}`);
 }
 
+export interface CatalogFacets {
+  tech: string[];
+  tags: string[];
+  maxPrice: number;
+}
+
+export async function getCatalogFacets(): Promise<CatalogFacets> {
+  return api.get<CatalogFacets>("/api/products/facets");
+}
+
+export async function validateCoupon(code: string, subtotal: number) {
+  return api.post<{
+    code: string;
+    label: string;
+    percent: number;
+    discount: number;
+    message: string;
+  }>("/api/coupons/validate", { code, subtotal });
+}
+
 export async function categoryCounts(): Promise<Record<string, number>> {
   const cats = await getCategories();
   return Object.fromEntries(cats.map((c) => [c.slug, c.count]));

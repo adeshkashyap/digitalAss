@@ -24,7 +24,6 @@ import { TestimonialCard } from "@/components/marketplace/testimonial-card";
 import { Button } from "@/components/ui/button";
 import { homeFaqs, principles, techStrip, testimonials } from "@/lib/catalog/content";
 import { licenses } from "@/lib/catalog/licenses";
-import { productBySlug } from "@/lib/catalog/products";
 import { categoriesQuery, categoryProductsQuery, featuredProductsQuery } from "@/lib/catalog/queries";
 
 const icons = [FileCode2, Boxes, MonitorSmartphone, RefreshCw];
@@ -132,7 +131,9 @@ export function WhyDevAssets() {
 }
 
 export function CuratedCollection() {
-  const hero = productBySlug("nexus-saas");
+  const featuredQ = useQuery(featuredProductsQuery(6));
+  const hero =
+    featuredQ.data?.find((p) => p.slug === "nexus-saas") ?? featuredQ.data?.[0];
   const supportQ = useQuery(categoryProductsQuery("admin-dashboards"));
   const support = (supportQ.data ?? []).slice(0, 2);
   if (!hero) return null;

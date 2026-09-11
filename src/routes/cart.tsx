@@ -62,9 +62,9 @@ function CartPage() {
     text: string;
   } | null>(null);
 
-  const submitCode = (e: React.FormEvent) => {
+  const submitCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = store.applyDiscount(code);
+    const res = await store.applyDiscount(code);
     if (res.ok) {
       setDiscountMessage({ type: "ok", text: res.message });
       setCode("");

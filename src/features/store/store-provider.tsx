@@ -8,9 +8,9 @@ import {
   type ReactNode,
 } from "react";
 
-import { effectivePrice } from "@/lib/catalog/service";
+import { effectivePrice, validateCoupon } from "@/lib/catalog/service";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 import { licenseById } from "@/lib/catalog/licenses";
-import { productById } from "@/lib/catalog/products";
 import type { CartItem, LicenseId, Product } from "@/lib/catalog/types";
 
 const CART_KEY = "devassets.cart.v1";
@@ -31,6 +31,7 @@ interface StoreValue {
   subtotal: number;
   discount: number;
   discountCode: string | null;
+  discountMessage: string | null;
   total: number;
   wishlist: string[];
   wishlistCount: number;
@@ -40,20 +41,15 @@ interface StoreValue {
   setQuantity: (productId: string, license: LicenseId, quantity: number) => void;
   toggleSaveForLater: (productId: string, license: LicenseId) => void;
   clearCart: () => void;
-  applyDiscount: (code: string) => { ok: boolean; message: string };
+  applyDiscount: (code: string) => Promise<{ ok: boolean; message: string }>;
   removeDiscount: () => void;
   toggleWishlist: (productId: string) => boolean;
   isWishlisted: (productId: string) => boolean;
   hydrated: boolean;
+  cartLoading: boolean;
 }
 
 const StoreContext = createContext<StoreValue | null>(null);
-
-/** Mock promotion codes — replaced by a pricing endpoint later. */
-const CODES: Record<string, { percent: number; label: string }> = {
-  SHIP20: { percent: 20, label: "SHIP20 — 20% off" },
-  LAUNCH10: { percent: 10, label: "LAUNCH10 — 10% off" },
-};
 
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -65,11 +61,30 @@ function read<T>(key: string, fallback: T): T {
   }
 }
 
+function buildLine(item: CartItem, productsById: Map<string, Product>): CartLine | null {
+  const product = productsById.get(item.productId);
+  if (!product) return null;
+  const license = licenseById(item.license);
+  const unitPrice = Math.round(effectivePrice(product) * license.multiplier);
+  return {
+    ...item,
+    product,
+    unitPrice,
+    lineTotal: unitPrice * item.quantity,
+    licenseName: license.name,
+  };
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [discountCode, setDiscountCode] = useState<string | null>(null);
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [discountMessage, setDiscountMessage] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+
+  const productIds = useMemo(() => cart.map((item) => item.productId), [cart]);
+  const { productsById, isLoading: cartLoading } = useProductsByIds(productIds);
 
   useEffect(() => {
     setCart(read<CartItem[]>(CART_KEY, []));
@@ -133,15 +148,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setCart([]), []);
 
-  const applyDiscount = useCallback((code: string) => {
-    const key = code.trim().toUpperCase();
-    if (!key) return { ok: false, message: "Enter a discount code." };
-    if (!CODES[key]) return { ok: false, message: `"${key}" is not a valid code.` };
-    setDiscountCode(key);
-    return { ok: true, message: `${CODES[key].label} applied.` };
+  const removeDiscount = useCallback(() => {
+    setDiscountCode(null);
+    setDiscountPercent(0);
+    setDiscountMessage(null);
   }, []);
 
-  const removeDiscount = useCallback(() => setDiscountCode(null), []);
+  const applyDiscount = useCallback(
+    async (code: string) => {
+      const key = code.trim();
+      if (!key) return { ok: false, message: "Enter a discount code." };
+
+      const activeLines = cart
+        .map((item) => buildLine(item, productsById))
+        .filter((line): line is CartLine => line !== null && !line.savedForLater);
+      const subtotal = activeLines.reduce((sum, line) => sum + line.lineTotal, 0);
+
+      try {
+        const result = await validateCoupon(key, subtotal);
+        setDiscountCode(result.code);
+        setDiscountPercent(result.percent);
+        setDiscountMessage(result.message);
+        return { ok: true, message: result.message };
+      } catch {
+        removeDiscount();
+        return { ok: false, message: `"${key.toUpperCase()}" is not a valid code.` };
+      }
+    },
+    [cart, productsById, removeDiscount],
+  );
 
   const toggleWishlist = useCallback((productId: string) => {
     let nowSaved = false;
@@ -153,35 +188,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<StoreValue>(() => {
-    const toLine = (item: CartItem): CartLine | null => {
-      const product = productById(item.productId);
-      if (!product) return null;
-      const license = licenseById(item.license);
-      const unitPrice = Math.round(effectivePrice(product) * license.multiplier);
-      return {
-        ...item,
-        product,
-        unitPrice,
-        lineTotal: unitPrice * item.quantity,
-        licenseName: license.name,
-      };
-    };
-
-    const all = cart.map(toLine).filter((l): l is CartLine => l !== null);
-    const lines = all.filter((l) => !l.savedForLater);
-    const savedLines = all.filter((l) => l.savedForLater);
-    const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
-    const percent = discountCode ? (CODES[discountCode]?.percent ?? 0) : 0;
-    const discount = Math.round((subtotal * percent) / 100);
+    const all = cart
+      .map((item) => buildLine(item, productsById))
+      .filter((line): line is CartLine => line !== null);
+    const lines = all.filter((line) => !line.savedForLater);
+    const savedLines = all.filter((line) => line.savedForLater);
+    const subtotal = lines.reduce((sum, line) => sum + line.lineTotal, 0);
+    const discount = Math.round((subtotal * discountPercent) / 100);
 
     return {
       cart,
       lines,
       savedLines,
-      count: lines.reduce((n, l) => n + l.quantity, 0),
+      count: lines.reduce((n, line) => n + line.quantity, 0),
       subtotal,
       discount,
       discountCode,
+      discountMessage,
       total: Math.max(0, subtotal - discount),
       wishlist,
       wishlistCount: wishlist.length,
@@ -196,12 +219,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleWishlist,
       isWishlisted: (id: string) => wishlist.includes(id),
       hydrated,
+      cartLoading,
     };
   }, [
     cart,
     wishlist,
     discountCode,
+    discountPercent,
+    discountMessage,
     hydrated,
+    cartLoading,
+    productsById,
     addToCart,
     removeFromCart,
     setLicense,

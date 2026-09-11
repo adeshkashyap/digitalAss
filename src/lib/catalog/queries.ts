@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import {
+  getCatalogFacets,
   getCategories,
   getFeaturedProducts,
   getNewProducts,
@@ -19,6 +20,8 @@ export const catalogKeys = {
   categories: ["catalog", "categories"] as const,
   categoryProducts: (slug: string) => ["catalog", "category", slug] as const,
   related: (slug: string) => ["catalog", "related", slug] as const,
+  facets: ["catalog", "facets"] as const,
+  productId: (id: string) => ["catalog", "product-id", id] as const,
 };
 
 export const catalogProductsQuery = (query: CatalogQuery) =>
@@ -44,3 +47,6 @@ export const relatedProductsQuery = (product: Product, limit = 3) =>
     queryKey: catalogKeys.related(product.slug),
     queryFn: () => getRelatedProducts(product, limit),
   });
+
+export const catalogFacetsQuery = () =>
+  queryOptions({ queryKey: catalogKeys.facets, queryFn: getCatalogFacets, staleTime: 10 * 60_000 });

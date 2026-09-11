@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, Download, LineChart, Receipt, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import { CategoryBarChart, OrdersLineChart, RevenueAreaChart } from "@/features/
 import { reportsQuery } from "@/lib/admin/queries";
 import { formatMoney, formatNumber } from "@/lib/admin/service";
 import type { ReportRange } from "@/lib/admin/types";
-import { productById } from "@/lib/catalog/products";
+import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
 export const Route = createFileRoute("/admin/reports")({ component: AdminReports });
 
@@ -34,6 +34,11 @@ const ranges: { value: ReportRange; label: string }[] = [
 function AdminReports() {
   const [range, setRange] = useState<ReportRange>("30d");
   const { data, isPending, isError, refetch } = useQuery(reportsQuery(range));
+  const productIds = useMemo(
+    () => [...new Set((data?.topProducts ?? []).map((row) => row.productId))],
+    [data?.topProducts],
+  );
+  const { productsById } = useProductsByIds(productIds);
 
   return (
     <>
@@ -136,7 +141,7 @@ function AdminReports() {
                         params={{ productId: row.productId }}
                         className="truncate text-sm font-medium transition-colors hover:text-brand"
                       >
-                        {productById(row.productId)?.name ?? row.productId}
+                        {productsById.get(row.productId)?.name ?? row.productId}
                       </Link>
                       <p className="text-[11px] text-muted-foreground">
                         {formatNumber(row.sales)} sales · {formatNumber(row.downloads)} downloads
