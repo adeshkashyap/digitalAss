@@ -93,6 +93,19 @@ catalogRouter.get("/products/new", async (req, res, next) => {
   }
 });
 
+catalogRouter.get("/products/id/:productId", async (req, res, next) => {
+  try {
+    const product = await prisma.product.findFirst({
+      where: { id: req.params.productId, status: "PUBLISHED" },
+      include: { reviews: { where: { status: "APPROVED" } } },
+    });
+    if (!product) throw new HttpError(404, "Product not found");
+    res.json(mappers.product(product));
+  } catch (err) {
+    next(err);
+  }
+});
+
 catalogRouter.get("/products/:slug", async (req, res, next) => {
   try {
     const product = await prisma.product.findFirst({

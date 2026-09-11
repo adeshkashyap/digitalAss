@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { catalogProducts } from "./catalog-seed.js";
 
 const prisma = new PrismaClient();
 
@@ -13,98 +14,6 @@ const categories = [
   { slug: "corporate", name: "Corporate", short: "Company and B2B sites", description: "Credible corporate presence: services, case studies, investor pages and careers.", tint: "slate", preview: "corporate" },
   { slug: "portfolio", name: "Portfolio", short: "Studios and creators", description: "Editorial project showcases with case-study layouts and considered typography.", tint: "violet", preview: "portfolio" },
   { slug: "landing-pages", name: "Landing Pages", short: "Launch and campaign pages", description: "Focused conversion pages with waitlist, changelog and pricing blocks ready to wire up.", tint: "cyan", preview: "landing" },
-];
-
-const products = [
-  {
-    slug: "react-admin-pro",
-    name: "React Admin Pro",
-    tagline: "Operator-grade admin shell with 42 screens",
-    summary: "A dense, keyboard-friendly admin system with role-aware navigation and composable data tables.",
-    description: [
-      "React Admin Pro is built the way internal tools actually get used: keyboard first, dense by default, and honest about loading and error states.",
-      "State is split into route-level data, feature stores and UI state, so replacing the mock service layer with your own REST endpoints is a single-folder change.",
-    ],
-    categorySlug: "admin-dashboards",
-    price: 89,
-    salePrice: 69,
-    rating: 4.9,
-    reviewCount: 214,
-    sales: 3120,
-    tech: ["React", "TypeScript", "Tailwind CSS", "TanStack Query", "Recharts", "Vite"],
-    tags: ["admin", "data tables", "rbac", "charts", "dark mode"],
-    features: [
-      { title: "42 production screens", body: "Users, roles, billing, audit log, API keys, notifications and a settings hub." },
-      { title: "Table system", body: "One composable data-table primitive drives every list view." },
-    ],
-    included: ["Full TypeScript source", "42 screens across 9 feature modules", "Figma source file", "12 months of updates"],
-    requirements: ["Node.js 20+", "React 18 or 19", "Tailwind CSS 3.4 or 4"],
-    pages: 42,
-    version: "3.4.1",
-    tint: "indigo",
-    preview: "dashboard",
-    screens: [{ label: "Overview", kind: "dashboard" }, { label: "Analytics", kind: "analytics" }],
-    featured: true,
-    bestSeller: true,
-    isNew: false,
-    licenseIds: ["PERSONAL", "COMMERCIAL", "AGENCY"] as const,
-    releasedAt: new Date("2024-11-05"),
-  },
-  {
-    slug: "saas-starter-kit",
-    name: "SaaS Starter Kit",
-    tagline: "From landing page to billing in one codebase",
-    summary: "Marketing site, auth, onboarding, workspace shell and Stripe-ready billing screens.",
-    description: ["A complete SaaS foundation with workspace switching, usage metering UI and subscription management flows."],
-    categorySlug: "saas",
-    price: 129,
-    rating: 4.8,
-    reviewCount: 156,
-    sales: 1890,
-    tech: ["React", "TypeScript", "Tailwind CSS", "Stripe", "Supabase"],
-    tags: ["saas", "billing", "onboarding", "auth"],
-    features: [{ title: "Billing-ready", body: "Subscription, usage and invoice screens wired for Stripe." }],
-    included: ["Full source", "Auth flows", "Onboarding wizard", "Billing UI"],
-    requirements: ["Node.js 20+", "Stripe account"],
-    pages: 28,
-    version: "2.1.0",
-    tint: "violet",
-    preview: "analytics",
-    screens: [{ label: "Dashboard", kind: "analytics" }],
-    featured: true,
-    bestSeller: false,
-    isNew: true,
-    licenseIds: ["PERSONAL", "COMMERCIAL", "AGENCY"] as const,
-    releasedAt: new Date("2025-06-12"),
-  },
-  {
-    slug: "commerce-ui-kit",
-    name: "Commerce UI Kit",
-    tagline: "Storefront, cart and checkout that convert",
-    summary: "Catalog, faceted search, PDP, cart and multi-step checkout with clean state boundaries.",
-    description: ["Production-grade ecommerce UI patterns with responsive catalog grids and checkout flows."],
-    categorySlug: "ecommerce",
-    price: 79,
-    salePrice: 59,
-    rating: 4.7,
-    reviewCount: 98,
-    sales: 1420,
-    tech: ["React", "TypeScript", "Tailwind CSS"],
-    tags: ["ecommerce", "checkout", "catalog"],
-    features: [{ title: "Full purchase flow", body: "Catalog through confirmation with accessible forms." }],
-    included: ["Full source", "Cart state patterns", "Checkout steps"],
-    requirements: ["Node.js 20+"],
-    pages: 18,
-    version: "1.8.2",
-    tint: "cyan",
-    preview: "ecommerce",
-    screens: [{ label: "Storefront", kind: "ecommerce" }],
-    featured: false,
-    bestSeller: true,
-    isNew: false,
-    licenseIds: ["PERSONAL", "COMMERCIAL"] as const,
-    releasedAt: new Date("2025-01-20"),
-  },
 ];
 
 async function main() {
@@ -121,34 +30,44 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.userPreferences.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.auditLog.deleteMany();
+  await prisma.storeSettings.deleteMany();
 
   for (const c of categories) {
     await prisma.category.create({ data: c });
   }
 
-  for (const p of products) {
-    const { licenseIds, releasedAt, ...rest } = p;
+  for (const p of catalogProducts) {
     await prisma.product.create({
       data: {
-        ...rest,
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        tagline: p.tagline,
+        summary: p.summary,
+        description: [p.summary],
+        categorySlug: p.categorySlug,
+        price: p.price,
+        salePrice: p.salePrice,
         status: "PUBLISHED",
-        description: rest.description,
-        features: rest.features,
-        screens: rest.screens,
-        licenseIds: [...licenseIds],
-        releasedAt,
-        reviews: {
-          create: [
-            {
-              author: "Demo Reviewer",
-              role: "Engineering Lead",
-              rating: 5,
-              title: "Exactly what we needed",
-              body: "Clean architecture and thoughtful defaults. Saved weeks of UI work.",
-              status: "APPROVED",
-            },
-          ],
-        },
+        featured: p.featured,
+        isNew: p.isNew ?? false,
+        bestSeller: p.bestSeller ?? false,
+        rating: p.rating,
+        reviewCount: p.reviewCount,
+        sales: p.sales,
+        tech: p.tech,
+        tags: p.tags,
+        features: [{ title: p.name, body: p.summary }],
+        included: ["Full TypeScript source", "Documentation", "12 months of updates"],
+        requirements: ["Node.js 20+", "React 18 or 19"],
+        pages: p.pages,
+        version: p.version,
+        tint: p.tint,
+        preview: p.preview,
+        screens: [{ label: "Preview", kind: p.preview }],
+        licenseIds: ["PERSONAL", "COMMERCIAL", "AGENCY"],
+        releasedAt: new Date(p.releasedAt),
       },
     });
   }
@@ -186,15 +105,24 @@ async function main() {
       id: "default",
       data: {
         storeName: "DevAssets",
+        tagline: "Production-ready templates",
         supportEmail: "support@devassets.example",
+        description: "Premium React templates for real products.",
         currency: "USD",
-        taxRate: 0,
-        maintenanceMode: false,
+        taxNote: "Tax calculated at checkout where applicable.",
+        brandAccent: "indigo",
+        legal: { termsUrl: "/terms", privacyUrl: "/privacy", refundUrl: "/refunds", licenseUrl: "/license" },
+        notifications: { orderReceipts: true, productUpdates: true, moderationAlerts: true, weeklyDigest: false },
+        integrations: [
+          { id: "stripe", name: "Stripe", purpose: "Payments", connected: false, note: "Add API keys in backend .env" },
+          { id: "storage", name: "Object storage", purpose: "Downloads", connected: false, note: "Connect S3-compatible storage" },
+          { id: "email", name: "Email", purpose: "Transactional mail", connected: false, note: "Connect Resend or SMTP" },
+        ],
       },
     },
   });
 
-  const product = await prisma.product.findFirst({ where: { slug: "react-admin-pro" } });
+  const product = await prisma.product.findUnique({ where: { id: "p-react-admin-pro" } });
   if (product) {
     const order = await prisma.order.create({
       data: {
@@ -248,7 +176,7 @@ async function main() {
     });
   }
 
-  console.log("Seed complete");
+  console.log("Seed complete — 13 products, demo customer + admin");
   console.log("  Customer: demo@devassets.example / password123");
   console.log("  Admin:    admin@devassets.example / password123");
 }

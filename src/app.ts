@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import { config } from "./lib/config.js";
@@ -9,6 +10,7 @@ import { adminRouter } from "./routes/admin/index.js";
 import { authRouter } from "./routes/auth.js";
 import { catalogRouter } from "./routes/catalog.js";
 import { checkoutRouter } from "./routes/checkout.js";
+import { couponsRouter } from "./routes/coupons.js";
 import { healthRouter } from "./routes/health.js";
 import { meRouter } from "./routes/me.js";
 import { supportRouter } from "./routes/support.js";
@@ -25,7 +27,15 @@ export function createApp() {
 
   app.use(express.json());
   app.use(healthRouter);
-  app.use("/api/auth", authRouter);
+
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 40,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+  app.use("/api/auth", authLimiter, authRouter);
+  app.use("/api/coupons", couponsRouter);
   app.use("/api", catalogRouter);
   app.use("/api/me", meRouter);
   app.use("/api/support", supportRouter);

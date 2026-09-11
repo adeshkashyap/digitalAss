@@ -40,6 +40,52 @@ adminRouter.use("/coupons", couponsRouter);
 adminRouter.use("/reviews", reviewsRouter);
 adminRouter.use("/settings", settingsRouter);
 
+adminRouter.get("/tags", async (_req, res, next) => {
+  try {
+    const { prisma } = await import("../../lib/prisma.js");
+    const products = await prisma.product.findMany({ select: { tags: true } });
+    const counts = new Map<string, number>();
+    for (const p of products) {
+      for (const tag of p.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+    res.json(
+      [...counts.entries()]
+        .map(([name, count]) => ({ name, count, status: "active" }))
+        .sort((a, b) => b.count - a.count),
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
+adminRouter.get("/licenses", async (_req, res, next) => {
+  try {
+    const { prisma } = await import("../../lib/prisma.js");
+    const { mappers } = await import("../../utils/mappers.js");
+    const licenses = await prisma.license.findMany({
+      include: { order: true },
+      orderBy: { purchasedAt: "desc" },
+    });
+    res.json(
+      licenses.map((l) => ({
+        id: l.id,
+        orderId: l.orderId,
+        orderReference: l.order.reference,
+        customerId: l.userId,
+        productId: l.productId,
+        type: mappers.licenseTypeToId(l.type),
+        version: l.ownedVersion,
+        purchasedAt: l.purchasedAt.toISOString().slice(0, 10),
+        updatesUntil: l.updatesUntil.toISOString().slice(0, 10),
+        status: l.status === "refunded" ? "revoked" : l.updatesUntil < new Date() ? "updates-expired" : "active",
+        reference: l.reference,
+      })),
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
 adminRouter.get("/payments", async (_req, res, next) => {
   try {
     const { prisma } = await import("../../lib/prisma.js");

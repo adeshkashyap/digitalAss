@@ -2,7 +2,7 @@ import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
-import { signToken } from "../middleware/auth.js";
+import { requireAuth, signToken } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
 import { mappers } from "../utils/mappers.js";
 
@@ -38,6 +38,19 @@ authRouter.post("/register", async (req, res, next) => {
 
     const token = signToken({ id: user.id, email: user.email, role: user.role });
     res.status(201).json({ token, user: mappers.customerUser(user) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+authRouter.get("/me", requireAuth, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      include: { preferences: true },
+    });
+    if (!user) throw new HttpError(404, "User not found");
+    res.json(mappers.customerUser(user));
   } catch (err) {
     next(err);
   }

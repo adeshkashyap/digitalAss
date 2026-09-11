@@ -70,6 +70,15 @@ couponsRouter.patch("/:id", async (req, res, next) => {
   }
 });
 
+couponsRouter.delete("/:id", async (req, res, next) => {
+  try {
+    await prisma.coupon.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
 couponsRouter.post("/:id/toggle", async (req, res, next) => {
   try {
     const existing = await prisma.coupon.findUnique({ where: { id: req.params.id } });
