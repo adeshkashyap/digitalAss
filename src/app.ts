@@ -19,6 +19,10 @@ import { webhooksRouter } from "./routes/webhooks.js";
 export function createApp() {
   const app = express();
 
+  if (config.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
   app.use(helmet());
   app.use(
     cors({
