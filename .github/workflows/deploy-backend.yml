@@ -14,7 +14,7 @@ env:
   AR_REPO: devassets
   SERVICE: devassets-api
   IMAGE: us-central1-docker.pkg.dev/project-1bfab08c-7bd6-4e02-8a5/devassets/devassets-api
-  CORS_ORIGIN: https://apnacodex.com
+  CORS_ORIGIN: https://apnacodex.com,https://www.apnacodex.com
 
 jobs:
   deploy:

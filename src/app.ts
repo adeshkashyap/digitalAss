@@ -20,7 +20,12 @@ export function createApp() {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: config.CORS_ORIGIN, credentials: true }));
+  app.use(
+    cors({
+      origin: config.CORS_ORIGIN.split(",").map((o) => o.trim()),
+      credentials: true,
+    }),
+  );
   app.use(pinoHttp({ logger }));
 
   app.use("/webhooks", express.raw({ type: "application/json" }), webhooksRouter);
