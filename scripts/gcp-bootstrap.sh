@@ -43,6 +43,26 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --role="roles/secretmanager.secretAccessor" \
   --quiet >/dev/null
 
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${CB_SA}" \
+  --role="roles/storage.admin" \
+  --quiet >/dev/null
+
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:${CB_SA}" \
+  --role="roles/artifactregistry.writer" \
+  --quiet >/dev/null
+
+# Default Compute SA runs Cloud Build steps for `gcloud builds submit`
+COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+for role in roles/storage.admin roles/artifactregistry.writer roles/run.admin \
+  roles/iam.serviceAccountUser roles/secretmanager.secretAccessor roles/logging.logWriter; do
+  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="serviceAccount:${COMPUTE_SA}" \
+    --role="$role" \
+    --quiet >/dev/null
+done
+
 echo "==> Creating Artifact Registry repository (if missing)..."
 if ! gcloud artifacts repositories describe "$AR_REPO" --location="$REGION" &>/dev/null; then
   gcloud artifacts repositories create "$AR_REPO" \
@@ -90,26 +110,31 @@ create_trigger() {
     return
   fi
 
-  local extra_args=()
   if [[ -n "$sub_key" && -n "$sub_val" ]]; then
-    extra_args+=(--substitutions="${sub_key}=${sub_val}")
+    gcloud builds triggers create github \
+      --name="$name" \
+      --region=global \
+      --repo-name="$GITHUB_REPO" \
+      --repo-owner="$GITHUB_OWNER" \
+      --branch-pattern="^${branch}$" \
+      --build-config="cloudbuild.yaml" \
+      --substitutions="${sub_key}=${sub_val}"
+  else
+    gcloud builds triggers create github \
+      --name="$name" \
+      --region=global \
+      --repo-name="$GITHUB_REPO" \
+      --repo-owner="$GITHUB_OWNER" \
+      --branch-pattern="^${branch}$" \
+      --build-config="cloudbuild.yaml"
   fi
-
-  gcloud builds triggers create github \
-    --name="$name" \
-    --region=global \
-    --repo-name="$GITHUB_REPO" \
-    --repo-owner="$GITHUB_OWNER" \
-    --branch-pattern="^${branch}$" \
-    --build-config="cloudbuild.yaml" \
-    "${extra_args[@]}"
 
   echo "    Created trigger: $name (branch: $branch)"
 }
 
 echo "==> Creating Cloud Build triggers..."
 create_trigger "devassets-deploy-backend" "backend"
-create_trigger "devassets-deploy-frontend" "frontend" "_API_URL" "http://localhost:4000"
+create_trigger "devassets-deploy-frontend" "frontend" "_API_URL" "https://devassets-api-REPLACE_ME.run.app"
 
 echo ""
 echo "==> Bootstrap complete"
