@@ -12,4 +12,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // GCP Cloud Run uses the Node server preset (set NITRO_PRESET=node-server in CI/Docker).
+  nitro: {
+    preset: process.env.NITRO_PRESET || "cloudflare-module",
+  },
 });
