@@ -1,14 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  CreditCard,
-  Download,
-  FileText,
-  LifeBuoy,
-  Receipt,
-  RotateCcw,
-  User,
-} from "lucide-react";
+import { CreditCard, Download, FileText, LifeBuoy, Receipt, RotateCcw, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
@@ -110,7 +102,8 @@ function AdminOrderDetail() {
               size="sm"
               onClick={() =>
                 toast.info("Invoice PDF is a demo action", {
-                  description: "Document generation and email delivery arrive with the backend phase.",
+                  description:
+                    "Document generation and email delivery arrive with the backend phase.",
                 })
               }
             >
@@ -121,7 +114,8 @@ function AdminOrderDetail() {
               size="sm"
               onClick={() =>
                 toast.info("Refunds are not available yet", {
-                  description: "This workspace has no payment provider connected, so nothing can be refunded.",
+                  description:
+                    "This workspace has no payment provider connected, so nothing can be refunded.",
                 })
               }
             >
@@ -143,7 +137,10 @@ function AdminOrderDetail() {
               {order.lines.map((line, i) => {
                 const product = productById(line.productId);
                 return (
-                  <li key={`${line.productId}-${i}`} className="flex flex-wrap items-center gap-3 px-5 py-4">
+                  <li
+                    key={`${line.productId}-${i}`}
+                    className="flex flex-wrap items-center gap-3 px-5 py-4"
+                  >
                     <div className="min-w-0 flex-1">
                       <Link
                         to="/admin/products/$productId"
@@ -153,8 +150,8 @@ function AdminOrderDetail() {
                         {product?.name ?? line.productId}
                       </Link>
                       <p className="font-mono text-[11px] text-muted-foreground">
-                        v{line.version} · {licenseById(line.license)?.name ?? line.license} license ·
-                        qty {line.quantity}
+                        v{line.version} · {licenseById(line.license)?.name ?? line.license} license
+                        · qty {line.quantity}
                       </p>
                     </div>
                     <span className="font-mono text-sm tabular-nums">
@@ -183,7 +180,11 @@ function AdminOrderDetail() {
           </Panel>
 
           <Panel>
-            <PanelHeader title="Order timeline" description="Recorded state changes." icon={Receipt} />
+            <PanelHeader
+              title="Order timeline"
+              description="Recorded state changes."
+              icon={Receipt}
+            />
             <ol className="divide-y divide-border">
               {order.events.map((event, i) => (
                 <li key={`${event.at}-${i}`} className="px-5 py-3.5">
@@ -193,7 +194,9 @@ function AdminOrderDetail() {
                       {formatDateTime(event.at)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{event.detail}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {event.detail}
+                  </p>
                 </li>
               ))}
             </ol>
@@ -245,7 +248,9 @@ function AdminOrderDetail() {
                 <DetailRow label="Company">{customer?.company ?? "—"}</DetailRow>
                 <DetailRow label="Country">{customer?.country ?? "—"}</DetailRow>
                 <DetailRow label="Lifetime spend">
-                  <span className="font-mono tabular-nums">{formatMoney(customer?.spend ?? 0)}</span>
+                  <span className="font-mono tabular-nums">
+                    {formatMoney(customer?.spend ?? 0)}
+                  </span>
                 </DetailRow>
               </dl>
               <div className="grid gap-2">
@@ -270,9 +275,7 @@ function AdminOrderDetail() {
             </div>
           </Panel>
 
-          <DemoNote>
-            This order is seeded sample data used to exercise the operations UI.
-          </DemoNote>
+          <DemoNote>This order is seeded sample data used to exercise the operations UI.</DemoNote>
         </aside>
       </div>
     </>

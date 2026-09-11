@@ -78,28 +78,29 @@ const toValues = (s: StoreSettings): FormValues => ({
   notifications: { ...s.notifications },
 });
 
-const notificationCopy: { key: keyof FormValues["notifications"]; label: string; hint: string }[] = [
-  {
-    key: "orderReceipts",
-    label: "Order receipts",
-    hint: "Email a receipt and license summary after each successful order.",
-  },
-  {
-    key: "productUpdates",
-    label: "Product update notices",
-    hint: "Notify owners when a template they purchased ships a new version.",
-  },
-  {
-    key: "moderationAlerts",
-    label: "Moderation alerts",
-    hint: "Alert operators when a review is reported or awaits a decision.",
-  },
-  {
-    key: "weeklyDigest",
-    label: "Weekly digest",
-    hint: "Send the team a Monday summary of revenue, orders and refunds.",
-  },
-];
+const notificationCopy: { key: keyof FormValues["notifications"]; label: string; hint: string }[] =
+  [
+    {
+      key: "orderReceipts",
+      label: "Order receipts",
+      hint: "Email a receipt and license summary after each successful order.",
+    },
+    {
+      key: "productUpdates",
+      label: "Product update notices",
+      hint: "Notify owners when a template they purchased ships a new version.",
+    },
+    {
+      key: "moderationAlerts",
+      label: "Moderation alerts",
+      hint: "Alert operators when a review is reported or awaits a decision.",
+    },
+    {
+      key: "weeklyDigest",
+      label: "Weekly digest",
+      hint: "Send the team a Monday summary of revenue, orders and refunds.",
+    },
+  ];
 
 function AdminSettings() {
   const { data, isPending, isError, refetch } = useQuery(storeSettingsQuery());
@@ -417,8 +418,8 @@ function SettingsForm({ settings: data }: { settings: StoreSettings }) {
       </Form>
 
       <DemoNote>
-        Settings persist in this browser only. Connecting the admin API makes them workspace-wide and
-        audited.
+        Settings persist in this browser only. Connecting the admin API makes them workspace-wide
+        and audited.
       </DemoNote>
     </>
   );

@@ -13,12 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AccountPageHeader,
-  CardsSkeleton,
-  ErrorState,
-  Panel,
-} from "@/features/account/account-ui";
+import { AccountPageHeader, CardsSkeleton, ErrorState, Panel } from "@/features/account/account-ui";
 import { ProductLibraryCard, PurchaseRow } from "@/features/account/library-card";
 import type { LibraryEntry } from "@/features/account/library-card";
 import { useDownloadAction } from "@/features/account/use-download";
@@ -82,7 +77,12 @@ function PurchasesPage() {
       if (tab === "recent" && new Date(e.purchase.purchasedAt).getTime() < cutoff) return false;
       if (tab === "updated" && !e.updateAvailable) return false;
       if (!term) return true;
-      return [e.product.name, e.product.tagline, licenseById(e.purchase.license).name, ...e.product.tech]
+      return [
+        e.product.name,
+        e.product.tagline,
+        licenseById(e.purchase.license).name,
+        ...e.product.tech,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(term);

@@ -48,7 +48,13 @@ const tooltipStyle = {
   labelStyle: { color: "var(--color-muted-foreground)" },
 } as const;
 
-export function RevenueAreaChart({ series, height = 260 }: { series: SeriesPoint[]; height?: number }) {
+export function RevenueAreaChart({
+  series,
+  height = 260,
+}: {
+  series: SeriesPoint[];
+  height?: number;
+}) {
   return (
     <ChartFrame height={height}>
       <AreaChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -78,7 +84,13 @@ export function RevenueAreaChart({ series, height = 260 }: { series: SeriesPoint
   );
 }
 
-export function OrdersLineChart({ series, height = 220 }: { series: SeriesPoint[]; height?: number }) {
+export function OrdersLineChart({
+  series,
+  height = 220,
+}: {
+  series: SeriesPoint[];
+  height?: number;
+}) {
   return (
     <ChartFrame height={height}>
       <LineChart data={series} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>

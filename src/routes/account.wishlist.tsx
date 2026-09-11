@@ -16,7 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AccountPageHeader, CardsSkeleton, ProductThumb, StatusBadge } from "@/features/account/account-ui";
+import {
+  AccountPageHeader,
+  CardsSkeleton,
+  ProductThumb,
+  StatusBadge,
+} from "@/features/account/account-ui";
 import { useStore } from "@/features/store/store-provider";
 import { categories, categoryBySlug } from "@/lib/catalog/categories";
 import { productById } from "@/lib/catalog/products";
@@ -38,10 +43,7 @@ function WishlistPage() {
   const [category, setCategory] = useState("all");
 
   const products = useMemo(
-    () =>
-      wishlist
-        .map((id) => productById(id))
-        .filter((p): p is NonNullable<typeof p> => !!p),
+    () => wishlist.map((id) => productById(id)).filter((p): p is NonNullable<typeof p> => !!p),
     [wishlist],
   );
 
@@ -54,9 +56,7 @@ function WishlistPage() {
     });
   }, [products, search, category]);
 
-  const usedCategories = categories.filter((c) =>
-    products.some((p) => p.categorySlug === c.slug),
-  );
+  const usedCategories = categories.filter((c) => products.some((p) => p.categorySlug === c.slug));
 
   return (
     <div className="space-y-6">

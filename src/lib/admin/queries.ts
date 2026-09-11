@@ -44,8 +44,7 @@ export const adminKeys = {
   auditLogs: ["admin", "audit-logs"] as const,
 };
 
-export const adminUserQuery = () =>
-  queryOptions({ queryKey: adminKeys.me, queryFn: getAdminUser });
+export const adminUserQuery = () => queryOptions({ queryKey: adminKeys.me, queryFn: getAdminUser });
 
 export const dashboardQuery = (range: ReportRange) =>
   queryOptions({ queryKey: adminKeys.dashboard(range), queryFn: () => getAdminDashboard(range) });

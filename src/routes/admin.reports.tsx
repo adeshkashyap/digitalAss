@@ -190,8 +190,8 @@ function AdminReports() {
       )}
 
       <DemoNote>
-        Figures come from the sample order ledger in this browser. Connecting the reporting API replaces
-        them with live aggregates and enables scheduled exports.
+        Figures come from the sample order ledger in this browser. Connecting the reporting API
+        replaces them with live aggregates and enables scheduled exports.
       </DemoNote>
     </>
   );

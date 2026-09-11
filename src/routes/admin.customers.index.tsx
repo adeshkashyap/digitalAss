@@ -50,7 +50,13 @@ function AdminCustomersPage() {
     return (data ?? [])
       .filter((c) => (status === "all" ? true : c.status === status))
       .filter((c) =>
-        q ? [c.name, c.email, c.company, c.country].filter(Boolean).join(" ").toLowerCase().includes(q) : true,
+        q
+          ? [c.name, c.email, c.company, c.country]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase()
+              .includes(q)
+          : true,
       )
       .sort(sorters[sort]);
   }, [data, search, status, sort]);
@@ -203,7 +209,11 @@ function AdminCustomersPage() {
         />
       ) : (
         <Panel>
-          <PanelHeader title="Customer accounts" description={`${rows.length} shown`} icon={Users} />
+          <PanelHeader
+            title="Customer accounts"
+            description={`${rows.length} shown`}
+            icon={Users}
+          />
           <DataTable
             caption="Marketplace customers"
             columns={columns}
@@ -234,8 +244,8 @@ function AdminCustomersPage() {
       )}
 
       <DemoNote>
-        Customer records are sample data. Suspending accounts, resetting access and messaging require
-        real authentication and email, which arrive in a later phase.
+        Customer records are sample data. Suspending accounts, resetting access and messaging
+        require real authentication and email, which arrive in a later phase.
       </DemoNote>
     </>
   );

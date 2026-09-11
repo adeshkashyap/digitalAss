@@ -228,8 +228,8 @@ function AdminCategories() {
         </div>
         <div className="border-t border-border p-5">
           <DemoNote>
-            Tags are derived from product records. Renaming or merging tags across the catalog will be
-            available once the catalog API is connected.
+            Tags are derived from product records. Renaming or merging tags across the catalog will
+            be available once the catalog API is connected.
           </DemoNote>
         </div>
       </Panel>

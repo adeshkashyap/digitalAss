@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutGrid, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
 import { ProductGrid } from "@/components/marketplace/product-grid";
+import { ProductGridSkeleton } from "@/components/marketplace/loading-skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetFooter, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import {
   activeFilterCount,
   defaultFilters,
@@ -21,6 +22,11 @@ import {
   MAX_PRICE,
   type CatalogFilters,
 } from "@/features/catalog/filter-panel";
+import {
+  catalogSearchSchema,
+  catalogStateToSearch,
+  searchToCatalogState,
+} from "@/features/catalog/search-params";
 import { PageHero } from "@/features/catalog/page-hero";
 import { categories } from "@/lib/catalog/categories";
 import { formatPrice, queryProducts } from "@/lib/catalog/service";
@@ -32,6 +38,7 @@ const description =
   "Browse 13 production-grade React templates across dashboards, SaaS, ecommerce, hospitality, education and corporate categories. Filter by technology, price and rating.";
 
 export const Route = createFileRoute("/templates/")({
+  validateSearch: catalogSearchSchema,
   head: () => ({
     meta: [
       { title },
@@ -56,9 +63,13 @@ const sortOptions: { value: SortKey; label: string }[] = [
 const PER_PAGE = 9;
 
 function CatalogPage() {
-  const [filters, setFilters] = useState<CatalogFilters>(defaultFilters);
-  const [sort, setSort] = useState<SortKey>("featured");
-  const [page, setPage] = useState(1);
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [isPending, startTransition] = useTransition();
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState<CatalogFilters | null>(null);
+
+  const { filters, sort, page } = searchToCatalogState(search);
 
   const result = useMemo(
     () =>
@@ -76,20 +87,27 @@ function CatalogPage() {
     [filters, sort, page],
   );
 
-  const update = (next: CatalogFilters) => {
-    setFilters(next);
-    setPage(1);
+  const pushState = (nextFilters: CatalogFilters, nextSort: SortKey, nextPage: number) => {
+    startTransition(() => {
+      navigate({
+        search: catalogStateToSearch(nextFilters, nextSort, nextPage),
+        replace: false,
+      });
+    });
   };
 
-  const reset = () => update(defaultFilters);
+  const update = (next: CatalogFilters) => pushState(next, sort, 1);
+
+  const reset = () => pushState(defaultFilters, "featured", 1);
+
   const activeCount = activeFilterCount(filters);
+  const panelFilters = draftFilters ?? filters;
 
   const pills: { key: string; label: string; clear: () => void }[] = [
     ...filters.categories.map((slug) => ({
       key: `cat-${slug}`,
       label: categories.find((c) => c.slug === slug)?.name ?? slug,
-      clear: () =>
-        update({ ...filters, categories: filters.categories.filter((s) => s !== slug) }),
+      clear: () => update({ ...filters, categories: filters.categories.filter((s) => s !== slug) }),
     })),
     ...filters.tech.map((t) => ({
       key: `tech-${t}`,
@@ -210,24 +228,65 @@ function CatalogPage() {
               />
             </div>
             <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 sm:flex">
-              <Sheet>
+              <Sheet
+                open={mobileFiltersOpen}
+                onOpenChange={(open) => {
+                  setMobileFiltersOpen(open);
+                  if (open) setDraftFilters(filters);
+                  else setDraftFilters(null);
+                }}
+              >
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden">
+                  <Button variant="outline" className="lg:hidden" aria-expanded={mobileFiltersOpen}>
                     <SlidersHorizontal /> Filters
                     {activeCount > 0 && (
-                      <span className="ml-0.5 rounded bg-brand px-1.5 font-mono text-[10px] text-brand-foreground">
+                      <span
+                        className="ml-0.5 rounded bg-brand px-1.5 font-mono text-[10px] text-brand-foreground"
+                        aria-label={`${activeCount} active filters`}
+                      >
                         {activeCount}
                       </span>
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[19rem] overflow-y-auto">
-                  <SheetTitle className="mb-5">Filter templates</SheetTitle>
-                  <FilterPanel filters={filters} onChange={update} onReset={reset} />
+                <SheetContent side="left" className="flex w-[19rem] flex-col p-0">
+                  <div className="border-b border-border px-5 py-4">
+                    <SheetTitle>Filter templates</SheetTitle>
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-5 py-4">
+                    <FilterPanel
+                      filters={panelFilters}
+                      onChange={(next) => setDraftFilters(next)}
+                      onReset={() => setDraftFilters(defaultFilters)}
+                    />
+                  </div>
+                  <SheetFooter className="grid grid-cols-2 gap-2 border-t border-border p-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setDraftFilters(defaultFilters);
+                        reset();
+                        setMobileFiltersOpen(false);
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="brand"
+                      onClick={() => {
+                        if (draftFilters) update(draftFilters);
+                        setMobileFiltersOpen(false);
+                      }}
+                    >
+                      Apply filters
+                    </Button>
+                  </SheetFooter>
                 </SheetContent>
               </Sheet>
 
-              <Select value={sort} onValueChange={(v) => setSort(v as SortKey)}>
+              <Select value={sort} onValueChange={(v) => pushState(filters, v as SortKey, 1)}>
                 <SelectTrigger className="h-10 w-[11.5rem]" aria-label="Sort templates">
                   <SelectValue />
                 </SelectTrigger>
@@ -252,10 +311,10 @@ function CatalogPage() {
                   size="sm"
                   onClick={p.clear}
                   className="h-7 rounded-full px-3 text-muted-foreground"
+                  aria-label={`Remove filter: ${p.label}`}
                 >
                   {p.label}
                   <X className="h-3 w-3" aria-hidden />
-                  <span className="sr-only">Remove filter</span>
                 </Button>
               ))}
               <Button variant="ghost" size="sm" onClick={reset}>
@@ -264,29 +323,39 @@ function CatalogPage() {
             </div>
           )}
 
-          <p className="mt-6 text-xs text-muted-foreground">
+          <p className="mt-6 text-xs text-muted-foreground" aria-live="polite">
             Showing {result.items.length} of {result.total} templates
           </p>
 
-          {result.items.length > 0 ? (
+          {isPending ? (
+            <ProductGridSkeleton count={6} />
+          ) : result.items.length > 0 ? (
             <>
               <ProductGrid products={result.items} className="mt-5" />
               {result.items.length < result.total && (
-                <div className="mt-10 flex flex-col items-center gap-3">
-                  <Button variant="outline" size="lg" onClick={() => setPage((p) => p + 1)}>
+                <nav
+                  className="mt-10 flex flex-col items-center gap-3"
+                  aria-label="Catalog pagination"
+                >
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => pushState(filters, sort, page + 1)}
+                    aria-label={`Load more templates, page ${page + 1}`}
+                  >
                     <LayoutGrid /> Load more templates
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    {result.total - result.items.length} more available
+                    Page {page} · {result.total - result.items.length} more available
                   </p>
-                </div>
+                </nav>
               )}
             </>
           ) : (
             <EmptyState
               className="mt-6"
               title="No templates match these filters"
-              description="Try widening the price range, removing a technology filter, or searching for a broader term like “dashboard” or “booking”."
+              description="Widen the price range, remove a technology filter, or search for a broader term like “dashboard” or “booking”."
               action={
                 <div className="flex flex-wrap justify-center gap-2">
                   <Button variant="brand" onClick={reset}>

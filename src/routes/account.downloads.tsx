@@ -1,14 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  CheckCircle2,
-  Clock,
-  Download,
-  History,
-  Search,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle2, Clock, Download, History, Search, ShieldCheck, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/marketplace/empty-state";

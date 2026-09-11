@@ -41,9 +41,7 @@ function AdminAuditLogs() {
     return (data ?? [])
       .filter((l) => (status === "all" ? true : l.status === status))
       .filter((l) =>
-        q
-          ? [l.actor, l.action, l.resource, l.context].join(" ").toLowerCase().includes(q)
-          : true,
+        q ? [l.actor, l.action, l.resource, l.context].join(" ").toLowerCase().includes(q) : true,
       );
   }, [data, search, status]);
 

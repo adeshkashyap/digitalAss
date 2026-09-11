@@ -25,7 +25,10 @@ export function AuthLayout({
   return (
     <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
       <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
-      <div className="grid-backdrop pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(70%_60%_at_70%_40%,black,transparent)]" aria-hidden />
+      <div
+        className="grid-backdrop pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(70%_60%_at_70%_40%,black,transparent)]"
+        aria-hidden
+      />
       <div className="shell relative grid gap-12 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:gap-20 lg:py-20">
         <div className="mx-auto w-full max-w-md">
           <div className="lg:hidden">
@@ -58,7 +61,10 @@ export function AuthLayout({
           </ul>
           <p className="mt-8 border-t border-border pt-5 text-xs text-muted-foreground">
             Account access is preview-only in this frontend phase. No details are stored or sent.{" "}
-            <Link to="/templates" className="underline underline-offset-4 hover:text-foreground">Browse templates</Link> instead.
+            <Link to="/templates" className="underline underline-offset-4 hover:text-foreground">
+              Browse templates
+            </Link>{" "}
+            instead.
           </p>
         </div>
       </div>
@@ -68,20 +74,26 @@ export function AuthLayout({
 
 export function SocialButtons({ action }: { action: string }) {
   return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {["GitHub", "Google"].map((provider) => (
-        <Button
-          key={provider}
-          type="button"
-          variant="outline"
-          disabled
-          title="Social sign-in arrives with accounts"
-          className="text-muted-foreground"
-        >
-          {provider === "GitHub" && <Github />}
-          {action} with {provider}
-        </Button>
-      ))}
+    <div className="space-y-2">
+      <p className="text-center text-[11px] text-muted-foreground">
+        Social sign-in is disabled in this preview — accounts API not connected yet.
+      </p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {["GitHub", "Google"].map((provider) => (
+          <Button
+            key={provider}
+            type="button"
+            variant="outline"
+            disabled
+            aria-disabled="true"
+            title={`${provider} sign-in arrives with the accounts API`}
+            className="text-muted-foreground"
+          >
+            {provider === "GitHub" && <Github />}
+            {action} with {provider}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }

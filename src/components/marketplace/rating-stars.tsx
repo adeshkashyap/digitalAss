@@ -36,7 +36,8 @@ export function RatingStars({
         <span className="text-xs text-muted-foreground">({count})</span>
       )}
       <span className="sr-only">
-        Rated {rating.toFixed(1)} out of 5{typeof count === "number" ? ` from ${count} reviews` : ""}
+        Rated {rating.toFixed(1)} out of 5
+        {typeof count === "number" ? ` from ${count} reviews` : ""}
       </span>
     </div>
   );

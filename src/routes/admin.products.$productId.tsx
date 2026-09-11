@@ -63,7 +63,9 @@ function ManageProduct() {
     mutationFn: (next: "published" | "draft" | "archived") => setProductStatus(productId, next),
     onSuccess: async (_d, next) => {
       await invalidate();
-      toast.success(`Status set to ${next}`, { description: "Stored locally in the demo workspace." });
+      toast.success(`Status set to ${next}`, {
+        description: "Stored locally in the demo workspace.",
+      });
     },
   });
 
@@ -158,9 +160,17 @@ function ManageProduct() {
       <div className="grid gap-6 xl:grid-cols-[1fr_20rem]">
         <div className="min-w-0 space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <AdminStatCard label="Revenue" value={formatMoney(product.revenue)} icon={CircleDollarSign} />
+            <AdminStatCard
+              label="Revenue"
+              value={formatMoney(product.revenue)}
+              icon={CircleDollarSign}
+            />
             <AdminStatCard label="Sales" value={formatNumber(product.sales)} icon={Package} />
-            <AdminStatCard label="Downloads" value={formatNumber(product.downloads)} icon={Download} />
+            <AdminStatCard
+              label="Downloads"
+              value={formatNumber(product.downloads)}
+              icon={Download}
+            />
             <AdminStatCard
               label="Rating"
               value={product.rating ? product.rating.toFixed(1) : "—"}
@@ -240,8 +250,8 @@ function ManageProduct() {
                 )}
                 <div className="border-t border-border p-5">
                   <DemoNote>
-                    File records are metadata only. No archive is stored, so downloads in the customer
-                    area remain demonstrations.
+                    File records are metadata only. No archive is stored, so downloads in the
+                    customer area remain demonstrations.
                   </DemoNote>
                 </div>
               </Panel>

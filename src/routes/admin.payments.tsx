@@ -93,7 +93,9 @@ function AdminPayments() {
     {
       key: "provider",
       header: "Method",
-      cell: (t) => <span className="text-xs text-muted-foreground">{providerLabel[t.provider]}</span>,
+      cell: (t) => (
+        <span className="text-xs text-muted-foreground">{providerLabel[t.provider]}</span>
+      ),
     },
     {
       key: "at",
@@ -135,12 +137,17 @@ function AdminPayments() {
       />
 
       <NotConnectedBanner title="Stripe is not connected">
-        Transactions here are placeholders that mirror the order ledger. Charges, payouts, disputes and
-        refunds require the payment provider and server-side keys, which arrive in the backend phase.
+        Transactions here are placeholders that mirror the order ledger. Charges, payouts, disputes
+        and refunds require the payment provider and server-side keys, which arrive in the backend
+        phase.
       </NotConnectedBanner>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <AdminStatCard label="Transactions" value={formatNumber(data?.length ?? 0)} icon={CreditCard} />
+        <AdminStatCard
+          label="Transactions"
+          value={formatNumber(data?.length ?? 0)}
+          icon={CreditCard}
+        />
         <AdminStatCard label="Settled volume" value={formatMoney(volume)} icon={Wallet} />
         <AdminStatCard
           label="Failed"

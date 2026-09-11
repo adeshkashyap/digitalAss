@@ -16,7 +16,10 @@ import { formatDate } from "@/lib/catalog/service";
 import type { LicenseRecord, LicenseStatus } from "@/lib/account/types";
 import type { Product } from "@/lib/catalog/types";
 
-const statusMeta: Record<LicenseStatus, { label: string; tone: "success" | "warning" | "info"; icon: typeof CheckCircle2 }> = {
+const statusMeta: Record<
+  LicenseStatus,
+  { label: string; tone: "success" | "warning" | "info"; icon: typeof CheckCircle2 }
+> = {
   active: { label: "Active", tone: "success", icon: CheckCircle2 },
   "updates-expired": { label: "Updates expired", tone: "warning", icon: Clock },
   refunded: { label: "Refunded", tone: "info", icon: RotateCcw },
@@ -25,9 +28,9 @@ const statusMeta: Record<LicenseStatus, { label: string; tone: "success" | "warn
 export function copyReference(reference: string) {
   const done = () => toast.success("License reference copied", { description: reference });
   if (typeof navigator !== "undefined" && navigator.clipboard) {
-    navigator.clipboard.writeText(reference).then(done, () =>
-      toast.error("Couldn't copy", { description: reference }),
-    );
+    navigator.clipboard
+      .writeText(reference)
+      .then(done, () => toast.error("Couldn't copy", { description: reference }));
   } else {
     done();
   }
@@ -73,7 +76,10 @@ export function LicenseCard({
         <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
           {[
             ["Purchased", formatDate(record.purchasedAt)],
-            ["Updates until", record.updatesUntil === "Lifetime" ? "Lifetime" : formatDate(record.updatesUntil)],
+            [
+              "Updates until",
+              record.updatesUntil === "Lifetime" ? "Lifetime" : formatDate(record.updatesUntil),
+            ],
             ["Seats", `${record.seats} developer${record.seats > 1 ? "s" : ""}`],
             ["Entitled build", `v${record.ownedVersion}`],
           ].map(([label, value]) => (
@@ -159,7 +165,10 @@ export function LicenseDetailsDialog({
               <ul className="mt-2 space-y-1.5 text-sm text-muted-foreground">
                 {(license?.highlights ?? []).map((h) => (
                   <li key={h} className="flex gap-2">
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" aria-hidden />
+                    <CheckCircle2
+                      className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success"
+                      aria-hidden
+                    />
                     {h}
                   </li>
                 ))}
@@ -180,8 +189,8 @@ export function LicenseDetailsDialog({
 
             <DemoNote>
               This is product UI copy, not legal advice. The binding terms are the license document
-              bundled with each purchase, which will be issued from the licensing service in a
-              later phase.
+              bundled with each purchase, which will be issued from the licensing service in a later
+              phase.
             </DemoNote>
 
             <div className="flex flex-wrap gap-2">

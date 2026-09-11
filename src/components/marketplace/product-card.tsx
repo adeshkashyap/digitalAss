@@ -36,14 +36,14 @@ export function ProductCard({
     >
       <div className="relative overflow-hidden border-b border-border bg-surface-2 p-3">
         <div className="relative aspect-[16/10] overflow-hidden rounded-md">
-          <div className="h-full w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]">
+          <div className="h-full w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:scale-[1.04]">
             <BrowserMockup compact url={`${product.slug}.devassets.io`} className="h-full">
               <div className="aspect-[16/9.2]">
                 <ProductScreenshot kind={product.preview} tint={product.tint} />
               </div>
             </BrowserMockup>
           </div>
-          <div className="absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-center gap-2 p-3 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+          <div className="absolute inset-x-0 bottom-0 flex translate-y-0 items-center justify-center gap-2 p-3 opacity-100 transition-all duration-300 lg:translate-y-2 lg:opacity-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-within:translate-y-0 lg:group-focus-within:opacity-100">
             <Button asChild size="sm" variant="brand">
               <Link to="/templates/$slug" params={{ slug: product.slug }}>
                 <Eye /> Quick view
@@ -81,12 +81,16 @@ export function ProductCard({
           onClick={() => {
             const nowSaved = toggleWishlist(product.id);
             toast.success(
-              nowSaved ? `${product.name} saved to wishlist` : `${product.name} removed from wishlist`,
+              nowSaved
+                ? `${product.name} saved to wishlist`
+                : `${product.name} removed from wishlist`,
             );
           }}
           aria-pressed={saved}
-          aria-label={saved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`}
-          className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full border border-border bg-surface/90 text-muted-foreground backdrop-blur transition-colors hover:text-brand"
+          aria-label={
+            saved ? `Remove ${product.name} from wishlist` : `Save ${product.name} to wishlist`
+          }
+          className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border border-border bg-surface/90 text-muted-foreground backdrop-blur transition-colors hover:text-brand"
         >
           <Heart className={cn("h-4 w-4", saved && "fill-brand text-brand")} />
         </button>

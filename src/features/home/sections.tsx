@@ -38,7 +38,10 @@ export function TechStrip() {
     <section className="border-b border-border bg-surface/40 py-6" aria-label="Technology stack">
       <div className="shell flex flex-col items-center gap-4 lg:flex-row lg:gap-8">
         <p className="eyebrow shrink-0">Built with</p>
-        <div className="relative w-full overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
+        <div
+          className="relative w-full overflow-hidden [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
+          aria-hidden
+        >
           <div className="marquee-track flex w-max items-center gap-8">
             {[...techStrip, ...techStrip].map((t, i) => (
               <span
@@ -58,7 +61,7 @@ export function TechStrip() {
 export function FeaturedTemplates() {
   const featured = getFeaturedProducts(6);
   return (
-    <section className="shell py-16 lg:py-24">
+    <section className="shell section-padding">
       <SectionHeader
         eyebrow="Featured"
         title="Templates teams are shipping with"
@@ -79,7 +82,7 @@ export function FeaturedTemplates() {
 export function CategoryGrid() {
   const counts = categoryCounts();
   return (
-    <section className="border-y border-border bg-surface/30 py-16 lg:py-24">
+    <section className="section-padding border-y border-border bg-surface/30">
       <div className="shell">
         <SectionHeader
           eyebrow="Browse by category"
@@ -105,7 +108,7 @@ export function CategoryGrid() {
 
 export function WhyDevAssets() {
   return (
-    <section className="shell py-16 lg:py-24">
+    <section className="shell section-padding">
       <SectionHeader
         eyebrow="Why DevAssets"
         title="The parts most templates skip"
@@ -138,7 +141,7 @@ export function CuratedCollection() {
   if (!hero) return null;
 
   return (
-    <section className="border-y border-border bg-surface/30 py-16 lg:py-24">
+    <section className="section-padding border-y border-border bg-surface/30">
       <div className="shell">
         <SectionHeader
           eyebrow="Curated collection"
@@ -234,7 +237,7 @@ export function LiveDemoSection() {
   ];
 
   return (
-    <section className="shell py-16 lg:py-24">
+    <section className="shell section-padding">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center">
         <div className="min-w-0">
           <p className="eyebrow">See it before you buy it</p>
@@ -266,7 +269,10 @@ export function LiveDemoSection() {
         </div>
 
         <div className="relative min-w-0">
-          <BrowserMockup url="commercex.devassets.io/checkout" className="shadow-[var(--shadow-lift)]">
+          <BrowserMockup
+            url="commercex.devassets.io/checkout"
+            className="shadow-[var(--shadow-lift)]"
+          >
             <div className="aspect-[16/10]">
               <ProductScreenshot kind="ecommerce" tint="cyan" />
             </div>
@@ -286,7 +292,7 @@ export function LiveDemoSection() {
 
 export function Testimonials() {
   return (
-    <section className="border-y border-border bg-surface/30 py-16 lg:py-24">
+    <section className="section-padding border-y border-border bg-surface/30">
       <div className="shell">
         <SectionHeader
           eyebrow="Preview feedback"
@@ -305,7 +311,7 @@ export function Testimonials() {
 
 export function PricingTeaser() {
   return (
-    <section className="shell py-16 lg:py-24">
+    <section className="shell section-padding">
       <SectionHeader
         eyebrow="Licensing"
         title="One purchase, no subscription"
@@ -318,11 +324,7 @@ export function PricingTeaser() {
             key={l.id}
             license={l}
             action={
-              <Button
-                asChild
-                variant={l.popular ? "hero" : "outline"}
-                className="w-full"
-              >
+              <Button asChild variant={l.popular ? "hero" : "outline"} className="w-full">
                 <Link to="/pricing">See what's covered</Link>
               </Button>
             }
@@ -335,7 +337,7 @@ export function PricingTeaser() {
 
 export function HomeFaq() {
   return (
-    <section className="border-y border-border bg-surface/30 py-16 lg:py-24">
+    <section className="section-padding border-y border-border bg-surface/30">
       <div className="shell grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
         <div>
           <p className="eyebrow">FAQ</p>
@@ -355,7 +357,7 @@ export function HomeFaq() {
 
 export function FinalCta() {
   return (
-    <section className="shell py-16 lg:py-24">
+    <section className="shell section-padding">
       <div className="relative overflow-hidden rounded-lg border border-border bg-card px-6 py-14 text-center sm:px-14">
         <div className="hero-glow pointer-events-none absolute inset-0" aria-hidden />
         <div

@@ -337,17 +337,72 @@ const customerSeeds: {
   joined: number;
   status?: "suspended";
 }[] = [
-  { name: "Donia Rahman", email: "donia@northlight.studio", company: "Northlight Studio", country: "Germany", joined: 542 },
-  { name: "Marcus Ihejirika", email: "marcus@fieldnote.dev", company: "Fieldnote", country: "United Kingdom", joined: 410 },
-  { name: "Sora Takahashi", email: "sora@kumo.design", company: "Kumo Design", country: "Japan", joined: 388 },
-  { name: "Elena Vasquez", email: "elena@brightpath.io", company: "Brightpath", country: "Spain", joined: 331 },
+  {
+    name: "Donia Rahman",
+    email: "donia@northlight.studio",
+    company: "Northlight Studio",
+    country: "Germany",
+    joined: 542,
+  },
+  {
+    name: "Marcus Ihejirika",
+    email: "marcus@fieldnote.dev",
+    company: "Fieldnote",
+    country: "United Kingdom",
+    joined: 410,
+  },
+  {
+    name: "Sora Takahashi",
+    email: "sora@kumo.design",
+    company: "Kumo Design",
+    country: "Japan",
+    joined: 388,
+  },
+  {
+    name: "Elena Vasquez",
+    email: "elena@brightpath.io",
+    company: "Brightpath",
+    country: "Spain",
+    joined: 331,
+  },
   { name: "Tobias Lind", email: "tobias@lindworks.se", country: "Sweden", joined: 297 },
-  { name: "Priya Nandakumar", email: "priya@corewave.in", company: "Corewave", country: "India", joined: 244 },
-  { name: "Julien Moreau", email: "julien@atelier-mv.fr", company: "Atelier MV", country: "France", joined: 198 },
-  { name: "Hannah Okafor", email: "hannah@stackroom.co", company: "Stackroom", country: "Nigeria", joined: 151 },
+  {
+    name: "Priya Nandakumar",
+    email: "priya@corewave.in",
+    company: "Corewave",
+    country: "India",
+    joined: 244,
+  },
+  {
+    name: "Julien Moreau",
+    email: "julien@atelier-mv.fr",
+    company: "Atelier MV",
+    country: "France",
+    joined: 198,
+  },
+  {
+    name: "Hannah Okafor",
+    email: "hannah@stackroom.co",
+    company: "Stackroom",
+    country: "Nigeria",
+    joined: 151,
+  },
   { name: "Diego Ferreira", email: "diego@pampa.dev", country: "Brazil", joined: 96 },
-  { name: "Nora Haddad", email: "nora@cedarloop.com", company: "Cedarloop", country: "Canada", joined: 61 },
-  { name: "Wei Chen", email: "wei@paperlane.io", company: "Paperlane", country: "Singapore", joined: 34, status: "suspended" },
+  {
+    name: "Nora Haddad",
+    email: "nora@cedarloop.com",
+    company: "Cedarloop",
+    country: "Canada",
+    joined: 61,
+  },
+  {
+    name: "Wei Chen",
+    email: "wei@paperlane.io",
+    company: "Paperlane",
+    country: "Singapore",
+    joined: 34,
+    status: "suspended",
+  },
   { name: "Ana Kovač", email: "ana@sonderstudio.si", country: "Slovenia", joined: 12 },
 ];
 
@@ -399,7 +454,8 @@ const couponCodes = ["SHIP2026", "AGENCY15", "LAUNCH20"];
 
 function buildOrder(index: number): AdminOrder {
   const seed = `order-${index}`;
-  const customer = adminCustomers[int(`${seed}-cus`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
+  const customer =
+    adminCustomers[int(`${seed}-cus`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
   const status = pick(`${seed}-status`, orderStatusMix, "paid");
   const lineCount = rand(`${seed}-lines`) > 0.72 ? 2 : 1;
   const lines = Array.from({ length: lineCount }).map((_, li) => {
@@ -407,7 +463,11 @@ function buildOrder(index: number): AdminOrder {
       adminProducts.filter((p) => p.status === "published")[
         int(`${seed}-p${li}`, 0, adminProducts.filter((p) => p.status === "published").length - 1)
       ] ?? adminProducts[0]!;
-    const license = pick<LicenseId>(`${seed}-lic${li}`, ["personal", "commercial", "agency"], "commercial");
+    const license = pick<LicenseId>(
+      `${seed}-lic${li}`,
+      ["personal", "commercial", "agency"],
+      "commercial",
+    );
     const multiplier = licenses.find((l) => l.id === license)?.multiplier ?? 1;
     return {
       productId: product.id,
@@ -427,7 +487,11 @@ function buildOrder(index: number): AdminOrder {
   const placedAt = daysAgo(placedDays, int(`${seed}-hour`, 6, 21));
 
   const events = [
-    { at: placedAt, label: "Order created", detail: "Checkout completed in the storefront (sample record)." },
+    {
+      at: placedAt,
+      label: "Order created",
+      detail: "Checkout completed in the storefront (sample record).",
+    },
     {
       at: placedAt,
       label: status === "failed" ? "Payment declined" : "Payment recorded",
@@ -470,9 +534,9 @@ function buildOrder(index: number): AdminOrder {
   return order;
 }
 
-export const adminOrders: AdminOrder[] = Array.from({ length: 42 }, (_, i) => buildOrder(i + 1)).sort(
-  (a, b) => b.placedAt.localeCompare(a.placedAt),
-);
+export const adminOrders: AdminOrder[] = Array.from({ length: 42 }, (_, i) =>
+  buildOrder(i + 1),
+).sort((a, b) => b.placedAt.localeCompare(a.placedAt));
 
 // Roll order aggregates back onto the customer records.
 for (const order of adminOrders) {
@@ -581,12 +645,20 @@ export const adminCoupons: Coupon[] = [
 
 /* ---------------------------------------------------------------- reviews */
 
-const reviewStatuses = ["approved", "approved", "approved", "pending", "pending", "rejected"] as const;
+const reviewStatuses = [
+  "approved",
+  "approved",
+  "approved",
+  "pending",
+  "pending",
+  "rejected",
+] as const;
 
 export const adminReviews: AdminReview[] = products.flatMap((p) =>
   p.reviews.map((r, ri) => {
     const seed = `${p.slug}-${r.id}`;
-    const customer = adminCustomers[int(`${seed}-cus`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
+    const customer =
+      adminCustomers[int(`${seed}-cus`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
     return {
       id: `rev-${p.slug}-${ri}`,
       productId: p.id,
@@ -606,10 +678,12 @@ export const adminReviews: AdminReview[] = products.flatMap((p) =>
 export const adminDownloads: AdminDownloadEvent[] = Array.from({ length: 48 }, (_, i) => {
   const seed = `dl-${i}`;
   const product = adminProducts[int(`${seed}-p`, 0, adminProducts.length - 1)] ?? adminProducts[0]!;
-  const customer = adminCustomers[int(`${seed}-c`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
+  const customer =
+    adminCustomers[int(`${seed}-c`, 0, adminCustomers.length - 1)] ?? adminCustomers[0]!;
   const file = product.files[int(`${seed}-f`, 0, product.files.length - 1)] ?? product.files[0]!;
   const roll = rand(`${seed}-status`);
-  const status: AdminDownloadEvent["status"] = roll > 0.94 ? "blocked" : roll > 0.86 ? "review" : "completed";
+  const status: AdminDownloadEvent["status"] =
+    roll > 0.94 ? "blocked" : roll > 0.86 ? "review" : "completed";
   const event: AdminDownloadEvent = {
     id: `adl-${7000 + i}`,
     at: daysAgo(int(`${seed}-day`, 0, 30), int(`${seed}-h`, 0, 23)),
@@ -622,7 +696,8 @@ export const adminDownloads: AdminDownloadEvent[] = Array.from({ length: 48 }, (
     license: pick<LicenseId>(`${seed}-lic`, ["personal", "commercial", "agency"], "commercial"),
     status,
   };
-  if (status === "blocked") event.note = "Entitlement check failed for this license (sample record).";
+  if (status === "blocked")
+    event.note = "Entitlement check failed for this license (sample record).";
   if (status === "review") event.note = "Unusual download volume from one account in 24h.";
   return event;
 }).sort((a, b) => b.at.localeCompare(a.at));
@@ -700,16 +775,44 @@ const auditActors: { actor: string; role: AdminUser["role"] }[] = [
 ];
 
 const auditActions = [
-  { action: "product.published", resource: "Product", context: "Status changed from draft to published." },
-  { action: "product.updated", resource: "Product", context: "Pricing and changelog fields edited." },
-  { action: "version.created", resource: "Product version", context: "New version record added with changelog." },
-  { action: "order.refund_recorded", resource: "Order", context: "Manual refund note added; provider not connected." },
+  {
+    action: "product.published",
+    resource: "Product",
+    context: "Status changed from draft to published.",
+  },
+  {
+    action: "product.updated",
+    resource: "Product",
+    context: "Pricing and changelog fields edited.",
+  },
+  {
+    action: "version.created",
+    resource: "Product version",
+    context: "New version record added with changelog.",
+  },
+  {
+    action: "order.refund_recorded",
+    resource: "Order",
+    context: "Manual refund note added; provider not connected.",
+  },
   { action: "coupon.deactivated", resource: "Coupon", context: "Usage limit reached." },
   { action: "review.approved", resource: "Review", context: "Moderation queue action." },
   { action: "review.rejected", resource: "Review", context: "Off-topic content." },
-  { action: "customer.suspended", resource: "Customer", context: "Repeated entitlement failures flagged for review." },
-  { action: "settings.updated", resource: "Store settings", context: "Notification preferences saved locally." },
-  { action: "download.blocked", resource: "Download", context: "Entitlement check failed for requested license." },
+  {
+    action: "customer.suspended",
+    resource: "Customer",
+    context: "Repeated entitlement failures flagged for review.",
+  },
+  {
+    action: "settings.updated",
+    resource: "Store settings",
+    context: "Notification preferences saved locally.",
+  },
+  {
+    action: "download.blocked",
+    resource: "Download",
+    context: "Entitlement check failed for requested license.",
+  },
 ];
 
 export const adminAuditLogs: AuditLog[] = Array.from({ length: 36 }, (_, i) => {

@@ -54,7 +54,12 @@ export const adminNav: AdminNavGroup[] = [
     label: "Catalog",
     items: [
       { to: "/admin/products", label: "Products", icon: Package, title: "Products" },
-      { to: "/admin/categories", label: "Categories & tags", icon: FolderTree, title: "Categories & tags" },
+      {
+        to: "/admin/categories",
+        label: "Categories & tags",
+        icon: FolderTree,
+        title: "Categories & tags",
+      },
       { to: "/admin/reviews", label: "Reviews", icon: Star, title: "Reviews & moderation" },
     ],
   },
@@ -62,7 +67,12 @@ export const adminNav: AdminNavGroup[] = [
     label: "Commerce",
     items: [
       { to: "/admin/orders", label: "Orders", icon: Receipt, title: "Orders" },
-      { to: "/admin/payments", label: "Payments", icon: CreditCard, title: "Payments & transactions" },
+      {
+        to: "/admin/payments",
+        label: "Payments",
+        icon: CreditCard,
+        title: "Payments & transactions",
+      },
       { to: "/admin/coupons", label: "Coupons", icon: BadgePercent, title: "Coupons & discounts" },
       { to: "/admin/licenses", label: "Licenses", icon: KeyRound, title: "License administration" },
     ],
@@ -74,13 +84,23 @@ export const adminNav: AdminNavGroup[] = [
   {
     label: "Delivery",
     items: [
-      { to: "/admin/downloads", label: "Download monitoring", icon: Download, title: "Download monitoring" },
+      {
+        to: "/admin/downloads",
+        label: "Download monitoring",
+        icon: Download,
+        title: "Download monitoring",
+      },
     ],
   },
   {
     label: "Insight",
     items: [
-      { to: "/admin/reports", label: "Sales & reports", icon: TrendingUp, title: "Sales & reports" },
+      {
+        to: "/admin/reports",
+        label: "Sales & reports",
+        icon: TrendingUp,
+        title: "Sales & reports",
+      },
       { to: "/admin/audit-logs", label: "Audit logs", icon: ScrollText, title: "Audit logs" },
     ],
   },

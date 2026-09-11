@@ -123,13 +123,7 @@ export interface AccountNotification {
   orderId?: string;
 }
 
-export type TicketCategory =
-  | "order"
-  | "download"
-  | "license"
-  | "billing"
-  | "technical"
-  | "other";
+export type TicketCategory = "order" | "download" | "license" | "billing" | "technical" | "other";
 
 export interface SupportTicket {
   id: string;

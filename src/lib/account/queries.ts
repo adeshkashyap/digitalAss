@@ -23,8 +23,7 @@ export const accountKeys = {
   tickets: ["support", "tickets"] as const,
 };
 
-export const userQuery = () =>
-  queryOptions({ queryKey: accountKeys.me, queryFn: getCurrentUser });
+export const userQuery = () => queryOptions({ queryKey: accountKeys.me, queryFn: getCurrentUser });
 
 export const purchasesQuery = () =>
   queryOptions({ queryKey: accountKeys.purchases, queryFn: getPurchases });
@@ -35,8 +34,7 @@ export const downloadsQuery = () =>
 export const downloadHistoryQuery = () =>
   queryOptions({ queryKey: accountKeys.downloadHistory, queryFn: getDownloadHistory });
 
-export const ordersQuery = () =>
-  queryOptions({ queryKey: accountKeys.orders, queryFn: getOrders });
+export const ordersQuery = () => queryOptions({ queryKey: accountKeys.orders, queryFn: getOrders });
 
 export const licensesQuery = () =>
   queryOptions({ queryKey: accountKeys.licenses, queryFn: getLicenses });

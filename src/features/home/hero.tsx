@@ -23,25 +23,25 @@ export function Hero() {
 
       <div className="noise-overlay pointer-events-none absolute inset-0" aria-hidden />
       <div className="shell relative grid gap-12 pb-20 pt-14 lg:min-h-[42rem] lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:items-center lg:gap-12 lg:pb-24 lg:pt-20">
-        <div className="reveal min-w-0">
-          <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1.5 backdrop-blur">
+        <div className="min-w-0">
+          <div className="reveal-stagger-1 inline-flex max-w-full items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1.5 backdrop-blur">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-success" />
             <span className="text-xs text-muted-foreground">
               13 curated templates · new releases added monthly
             </span>
           </div>
 
-          <h1 className="mt-7 max-w-2xl font-display text-[2.65rem] font-semibold leading-[1.02] sm:text-5xl lg:text-[4rem]">
+          <h1 className="reveal-stagger-2 mt-7 max-w-2xl font-display text-display-xl font-semibold">
             Production-ready websites.
             <span className="block text-gradient">Built to ship.</span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+          <p className="reveal-stagger-3 mt-6 max-w-xl text-body-lg text-muted-foreground">
             Premium React and TypeScript templates engineered for real products—not throwaway demos.
             Full source, responsive states and practical documentation included.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="reveal-stagger-4 mt-8 flex flex-wrap gap-3">
             <Button asChild variant="hero" size="xl">
               <Link to="/templates">
                 Explore templates <ArrowRight />
@@ -65,7 +65,7 @@ export function Hero() {
             </span>
           </div>
 
-          <dl className="mt-10 hidden max-w-xl grid-cols-4 gap-x-6 gap-y-5 border-t border-border pt-8 sm:grid">
+          <dl className="mt-10 grid max-w-xl grid-cols-2 gap-x-6 gap-y-5 border-t border-border pt-8 sm:grid-cols-4">
             {stats.map((s) => (
               <div key={s.label} className="min-w-0">
                 <dt className="sr-only">{s.label}</dt>

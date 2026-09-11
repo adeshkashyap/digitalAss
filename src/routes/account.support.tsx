@@ -76,23 +76,19 @@ const helpArticles = [
 const faqs = [
   {
     q: "How long do I keep access to my downloads?",
-    a:
-      "Your purchase never expires. The update window depends on your license tier, but the build you own stays available in Downloads.",
+    a: "Your purchase never expires. The update window depends on your license tier, but the build you own stays available in Downloads.",
   },
   {
     q: "Can I use one template for several client projects?",
-    a:
-      "Personal and commercial licenses cover a single end product. The agency license covers unlimited client projects with up to ten developer seats.",
+    a: "Personal and commercial licenses cover a single end product. The agency license covers unlimited client projects with up to ten developer seats.",
   },
   {
     q: "Do you support upgrades between license tiers?",
-    a:
-      "Upgrades will be handled from the Licenses page once billing is connected. Until then, contact support and we will note the request.",
+    a: "Upgrades will be handled from the Licenses page once billing is connected. Until then, contact support and we will note the request.",
   },
   {
     q: "Why does my download not produce a file yet?",
-    a:
-      "This phase is frontend-only: download actions are recorded and confirmed, but artifact storage and secure links arrive with the backend.",
+    a: "This phase is frontend-only: download actions are recorded and confirmed, but artifact storage and secure links arrive with the backend.",
   },
 ];
 
@@ -182,7 +178,8 @@ function SupportPage() {
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {articles.length === 0 ? (
               <li className="text-sm text-muted-foreground">
-                No article matches “{articleSearch}”. Send a request below and we'll answer directly.
+                No article matches “{articleSearch}”. Send a request below and we'll answer
+                directly.
               </li>
             ) : (
               articles.map((a) => (
@@ -206,10 +203,30 @@ function SupportPage() {
         </div>
         <div className="grid gap-4 p-5 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: "Order help", hint: "Payment status, invoices", to: "/account/orders" as const, icon: CreditCard },
-            { label: "Download issue", hint: "Files and versions", to: "/account/downloads" as const, icon: Download },
-            { label: "License question", hint: "Seats and usage", to: "/account/licenses" as const, icon: ScrollText },
-            { label: "Licensing guide", hint: "Compare tiers", to: "/pricing" as const, icon: BookOpen },
+            {
+              label: "Order help",
+              hint: "Payment status, invoices",
+              to: "/account/orders" as const,
+              icon: CreditCard,
+            },
+            {
+              label: "Download issue",
+              hint: "Files and versions",
+              to: "/account/downloads" as const,
+              icon: Download,
+            },
+            {
+              label: "License question",
+              hint: "Seats and usage",
+              to: "/account/licenses" as const,
+              icon: ScrollText,
+            },
+            {
+              label: "Licensing guide",
+              hint: "Compare tiers",
+              to: "/pricing" as const,
+              icon: BookOpen,
+            },
           ].map((item) => (
             <Link
               key={item.label}
@@ -259,10 +276,7 @@ function SupportPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="ticket-reference">Related order or template</Label>
-                <Select
-                  value={reference ?? "none"}
-                  onValueChange={(v) => setValue("reference", v)}
-                >
+                <Select value={reference ?? "none"} onValueChange={(v) => setValue("reference", v)}>
                   <SelectTrigger id="ticket-reference">
                     <SelectValue />
                   </SelectTrigger>
@@ -337,7 +351,11 @@ function SupportPage() {
         <div className="space-y-6">
           {/* Existing tickets */}
           <Panel className="overflow-hidden">
-            <PanelHeader title="Your requests" description="Recent support conversations." icon={FileQuestion} />
+            <PanelHeader
+              title="Your requests"
+              description="Recent support conversations."
+              icon={FileQuestion}
+            />
             {ticketsQ.isPending ? (
               <p className="px-5 py-6 text-sm text-muted-foreground">Loading requests…</p>
             ) : (ticketsQ.data ?? []).length === 0 ? (

@@ -49,20 +49,32 @@ export const accountNav: AccountNavGroup[] = [
   {
     label: "Orders",
     items: [
-      { to: "/account/orders", label: "Orders & billing", icon: ReceiptText, title: "Orders & billing" },
+      {
+        to: "/account/orders",
+        label: "Orders & billing",
+        icon: ReceiptText,
+        title: "Orders & billing",
+      },
       { to: "/account/licenses", label: "Licenses", icon: ScrollText, title: "Licenses" },
     ],
   },
   {
     label: "Personal",
     items: [
-      { to: "/account/profile", label: "Profile & settings", icon: UserCog, title: "Profile & settings" },
+      {
+        to: "/account/profile",
+        label: "Profile & settings",
+        icon: UserCog,
+        title: "Profile & settings",
+      },
       { to: "/account/notifications", label: "Notifications", icon: Bell, title: "Notifications" },
     ],
   },
   {
     label: "Support",
-    items: [{ to: "/account/support", label: "Help & support", icon: LifeBuoy, title: "Help & support" }],
+    items: [
+      { to: "/account/support", label: "Help & support", icon: LifeBuoy, title: "Help & support" },
+    ],
   },
 ];
 

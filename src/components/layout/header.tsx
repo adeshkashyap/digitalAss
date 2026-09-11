@@ -71,7 +71,10 @@ export function Header() {
                 key={item.to}
                 to={item.to}
                 className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                activeProps={{ className: "text-foreground" }}
+                activeProps={{
+                  className: "nav-active text-foreground",
+                  "aria-current": "page",
+                }}
               >
                 {item.label}
               </Link>
@@ -96,8 +99,9 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className="touch-target md:min-h-9 md:min-w-9"
               aria-label="Search templates"
+              aria-expanded={searchOpen}
               onClick={() => setSearchOpen(true)}
             >
               <Search />
@@ -106,26 +110,42 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
+              className="touch-target sm:min-h-9 sm:min-w-9"
               onClick={toggle}
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
             >
               {mounted && theme === "dark" ? <Sun /> : <Moon />}
             </Button>
 
-            <Button asChild variant="ghost" size="icon" className="relative hidden sm:inline-flex">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="relative hidden touch-target sm:inline-flex sm:min-h-9 sm:min-w-9"
+            >
               <Link to="/account/wishlist" aria-label="Wishlist">
                 <Heart />
                 {hydrated && <CountBadge value={wishlistCount} />}
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="hidden touch-target sm:inline-flex sm:min-h-9 sm:min-w-9"
+            >
               <Link to="/account" aria-label="Your account">
                 <CircleUser />
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="icon" className="relative">
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              className="relative touch-target sm:min-h-9 sm:min-w-9"
+            >
               <Link to="/cart" aria-label="Cart">
                 <ShoppingCart />
                 {hydrated && <CountBadge value={count} />}

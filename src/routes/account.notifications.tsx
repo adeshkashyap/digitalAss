@@ -6,16 +6,8 @@ import { toast } from "sonner";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
 import { Button } from "@/components/ui/button";
-import {
-  AccountPageHeader,
-  ErrorState,
-  Panel,
-  RowsSkeleton,
-} from "@/features/account/account-ui";
-import {
-  NotificationItem,
-  notificationCategoryLabel,
-} from "@/features/account/notification-item";
+import { AccountPageHeader, ErrorState, Panel, RowsSkeleton } from "@/features/account/account-ui";
+import { NotificationItem, notificationCategoryLabel } from "@/features/account/notification-item";
 import { accountKeys, notificationsQuery } from "@/lib/account/queries";
 import {
   dismissNotification,

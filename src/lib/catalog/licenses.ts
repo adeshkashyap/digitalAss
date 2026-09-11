@@ -46,8 +46,7 @@ export const licenses: License[] = [
   },
 ];
 
-export const licenseById = (id: LicenseId) =>
-  licenses.find((l) => l.id === id) ?? licenses[0]!;
+export const licenseById = (id: LicenseId) => licenses.find((l) => l.id === id) ?? licenses[0]!;
 
 export const licenseMatrix: { feature: string; values: Record<LicenseId, string> }[] = [
   {

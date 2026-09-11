@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
@@ -18,11 +18,24 @@ const links = [
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next) triggerRef.current?.focus();
+  };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+        <Button
+          ref={triggerRef}
+          variant="ghost"
+          size="icon"
+          className="touch-target lg:hidden lg:min-h-9 lg:min-w-9"
+          aria-label="Open menu"
+          aria-expanded={open}
+        >
           <Menu />
         </Button>
       </SheetTrigger>
@@ -40,8 +53,11 @@ export function MobileNav() {
               key={l.to}
               to={l.to}
               onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              activeProps={{ className: "bg-accent text-foreground" }}
+              className="min-h-11 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              activeProps={{
+                className: "bg-accent text-foreground",
+                "aria-current": "page",
+              }}
             >
               {l.label}
             </Link>
@@ -56,7 +72,7 @@ export function MobileNav() {
                 to="/categories/$slug"
                 params={{ slug: c.slug }}
                 onClick={() => setOpen(false)}
-                className="truncate rounded-md border border-border px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
+                className="flex min-h-11 items-center truncate rounded-md border border-border px-2.5 py-2 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
               >
                 {c.name}
               </Link>

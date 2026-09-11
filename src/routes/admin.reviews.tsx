@@ -49,7 +49,8 @@ function AdminReviews() {
   const [tab, setTab] = useState<ReviewStatus | "all" | "reported">("pending");
 
   const moderate = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: ReviewStatus }) => moderateReview(id, status),
+    mutationFn: ({ id, status }: { id: string; status: ReviewStatus }) =>
+      moderateReview(id, status),
     onSuccess: async (_d, vars) => {
       await queryClient.invalidateQueries({ queryKey: ["admin"], exact: false });
       toast.success(`Review ${vars.status}`, {
@@ -61,13 +62,7 @@ function AdminReviews() {
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (data ?? [])
-      .filter((r) =>
-        tab === "all"
-          ? true
-          : tab === "reported"
-            ? r.reported
-            : r.status === tab,
-      )
+      .filter((r) => (tab === "all" ? true : tab === "reported" ? r.reported : r.status === tab))
       .filter((r) =>
         q
           ? [r.title, r.body, productById(r.productId)?.name, author(r.customerId)?.name]
@@ -214,8 +209,8 @@ function AdminReviews() {
       )}
 
       <DemoNote>
-        Reviews are seeded from the catalog. Notifying customers about moderation outcomes needs email
-        delivery, which is a later phase.
+        Reviews are seeded from the catalog. Notifying customers about moderation outcomes needs
+        email delivery, which is a later phase.
       </DemoNote>
     </>
   );

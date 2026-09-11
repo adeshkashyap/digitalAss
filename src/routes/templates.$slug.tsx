@@ -22,7 +22,7 @@ import { BrowserMockup } from "@/components/marketplace/browser-mockup";
 import { FAQAccordion } from "@/components/marketplace/faq-accordion";
 import { LicenseComparison } from "@/components/marketplace/license-cards";
 import { PriceDisplay } from "@/components/marketplace/price-display";
-import { ProductGrid } from "@/components/marketplace/product-grid";
+import { ProductCard } from "@/components/marketplace/product-card";
 import { ProductScreenshot } from "@/components/marketplace/product-screenshot";
 import { RatingStars } from "@/components/marketplace/rating-stars";
 import { SectionHeader } from "@/components/marketplace/section-header";
@@ -151,9 +151,7 @@ function ProductDetail() {
             )}
           </div>
 
-          <h1 className="mt-3 font-display text-3xl font-semibold sm:text-[2.75rem]">
-            {product.name}
-          </h1>
+          <h1 className="mt-3 font-display text-display-lg font-semibold">{product.name}</h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
             {product.tagline}
           </p>
@@ -184,16 +182,29 @@ function ProductDetail() {
                   aria-pressed={i === activeScreen}
                   aria-label={`View ${s.label} screen`}
                   className={cn(
-                    "w-32 shrink-0 snap-start overflow-hidden rounded-md border text-left transition-colors sm:w-auto",
+                    "relative w-32 shrink-0 snap-start overflow-hidden rounded-md border text-left transition-colors sm:w-auto",
                     i === activeScreen
-                      ? "border-brand shadow-[var(--shadow-glow)]"
+                      ? "border-brand shadow-[var(--shadow-glow)] ring-1 ring-brand/40"
                       : "border-border hover:border-border-strong",
                   )}
                 >
+                  {i === activeScreen && (
+                    <span
+                      className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-brand text-brand-foreground"
+                      aria-hidden
+                    >
+                      <Check className="h-3 w-3" />
+                    </span>
+                  )}
                   <span className="block aspect-[16/10]">
                     <ProductScreenshot kind={s.kind} tint={product.tint} />
                   </span>
-                  <span className="block truncate border-t border-border px-2 py-1.5 text-[11px] text-muted-foreground">
+                  <span
+                    className={cn(
+                      "block truncate border-t border-border px-2 py-1.5 text-[11px]",
+                      i === activeScreen ? "font-medium text-foreground" : "text-muted-foreground",
+                    )}
+                  >
                     {s.label}
                   </span>
                 </button>
@@ -213,7 +224,10 @@ function ProductDetail() {
               <TabsContent value="overview" className="pt-8">
                 <div className="max-w-3xl space-y-4">
                   {product.description.map((para) => (
-                    <p key={para.slice(0, 24)} className="text-sm leading-relaxed text-muted-foreground">
+                    <p
+                      key={para.slice(0, 24)}
+                      className="text-sm leading-relaxed text-muted-foreground"
+                    >
                       {para}
                     </p>
                   ))}
@@ -246,8 +260,16 @@ function ProductDetail() {
                 <div className="mt-8 grid gap-4 sm:grid-cols-3">
                   {[
                     { Icon: History, label: "Version", value: product.version },
-                    { Icon: RefreshCw, label: "Last updated", value: formatDate(product.updatedAt) },
-                    { Icon: Layers, label: "First released", value: formatDate(product.releasedAt) },
+                    {
+                      Icon: RefreshCw,
+                      label: "Last updated",
+                      value: formatDate(product.updatedAt),
+                    },
+                    {
+                      Icon: Layers,
+                      label: "First released",
+                      value: formatDate(product.releasedAt),
+                    },
                   ].map(({ Icon, label, value }) => (
                     <div key={label} className="rounded-lg border border-border bg-card p-4">
                       <p className="eyebrow flex items-center gap-2">
@@ -357,9 +379,7 @@ function ProductDetail() {
           </div>
 
           <div className="mt-14 border-t border-border pt-10">
-            <h2 className="font-display text-lg font-semibold tracking-tight">
-              Frequently asked
-            </h2>
+            <h2 className="font-display text-lg font-semibold tracking-tight">Frequently asked</h2>
             <FAQAccordion items={productFaqs} idPrefix={`pdp-${product.slug}`} className="mt-2" />
           </div>
         </div>
@@ -402,9 +422,7 @@ function ProductDetail() {
                             {l.projects}
                           </span>
                         </span>
-                        <span className="shrink-0 text-sm font-semibold">
-                          {formatPrice(price)}
-                        </span>
+                        <span className="shrink-0 text-sm font-semibold">{formatPrice(price)}</span>
                       </Button>
                     );
                   })}
@@ -479,7 +497,7 @@ function ProductDetail() {
         </aside>
       </div>
 
-      <section className="border-t border-border bg-surface/30 py-16">
+      <section className="border-t border-border bg-surface/30 py-16 pb-28 lg:pb-16">
         <div className="shell">
           <SectionHeader
             eyebrow="Related templates"
@@ -490,9 +508,33 @@ function ProductDetail() {
               </Button>
             }
           />
-          <ProductGrid products={related} className="mt-10" />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} compact className="w-full" />
+            ))}
+          </div>
         </div>
       </section>
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:hidden"
+        role="region"
+        aria-label="Purchase options"
+      >
+        <div className="shell flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <PriceDisplay
+              price={listPrice}
+              salePrice={product.salePrice ? licensePrice : undefined}
+              size="sm"
+            />
+            <p className="truncate text-[11px] text-muted-foreground">{selected.name} license</p>
+          </div>
+          <Button variant="hero" size="lg" className="shrink-0" onClick={() => add()}>
+            <ShoppingCart /> Add to cart
+          </Button>
+        </div>
+      </div>
     </>
   );
 }

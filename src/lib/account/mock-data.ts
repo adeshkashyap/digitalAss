@@ -190,13 +190,11 @@ export const mockOrders: Order[] = [
         unitPrice: purchaseFor("nexus-saas").pricePaid,
       },
     ],
-    subtotal:
-      purchaseFor("react-admin-pro").pricePaid + purchaseFor("nexus-saas").pricePaid,
+    subtotal: purchaseFor("react-admin-pro").pricePaid + purchaseFor("nexus-saas").pricePaid,
     discount: 40,
     discountCode: "LAUNCH10",
     tax: 0,
-    total:
-      purchaseFor("react-admin-pro").pricePaid + purchaseFor("nexus-saas").pricePaid - 40,
+    total: purchaseFor("react-admin-pro").pricePaid + purchaseFor("nexus-saas").pricePaid - 40,
     paymentMethodLabel: "Card (payment provider not connected)",
     invoiceNumber: "INV-2026-2481",
   },
@@ -328,8 +326,7 @@ export const mockLicenses: LicenseRecord[] = mockPurchases.map((p, i) => ({
   productId: p.productId,
   orderId: p.orderId,
   type: p.license,
-  status:
-    p.archived === true ? "updates-expired" : p.license === "agency" ? "active" : "active",
+  status: p.archived === true ? "updates-expired" : p.license === "agency" ? "active" : "active",
   purchasedAt: p.purchasedAt,
   updatesUntil:
     p.license === "agency"

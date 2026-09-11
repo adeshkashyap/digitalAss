@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { AlertTriangle, RotateCcw } from "lucide-react";
-import type { LucideIcon, } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Breadcrumbs } from "@/components/marketplace/breadcrumbs";
@@ -57,9 +57,7 @@ export function Panel({
   className?: string;
   as?: "section" | "div" | "article";
 }) {
-  return (
-    <Tag className={cn("rounded-lg border border-border bg-card", className)}>{children}</Tag>
-  );
+  return <Tag className={cn("rounded-lg border border-border bg-card", className)}>{children}</Tag>;
 }
 
 export function PanelHeader({

@@ -65,8 +65,7 @@ export const categories: Category[] = [
     slug: "corporate",
     name: "Corporate",
     short: "Company and B2B sites",
-    description:
-      "Credible corporate presence: services, case studies, investor pages and careers.",
+    description: "Credible corporate presence: services, case studies, investor pages and careers.",
     tint: "slate",
     preview: "corporate",
     count: 1,
@@ -75,8 +74,7 @@ export const categories: Category[] = [
     slug: "portfolio",
     name: "Portfolio",
     short: "Studios and creators",
-    description:
-      "Editorial project showcases with case-study layouts and considered typography.",
+    description: "Editorial project showcases with case-study layouts and considered typography.",
     tint: "violet",
     preview: "portfolio",
     count: 1,

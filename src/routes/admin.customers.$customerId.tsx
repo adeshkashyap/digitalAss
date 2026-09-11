@@ -135,7 +135,11 @@ function AdminCustomerDetailPage() {
 
             <TabsContent value="orders" className="mt-6">
               <Panel>
-                <PanelHeader title="Order history" description={`${orders.length} records`} icon={Receipt} />
+                <PanelHeader
+                  title="Order history"
+                  description={`${orders.length} records`}
+                  icon={Receipt}
+                />
                 {orders.length === 0 ? (
                   <p className="px-5 py-8 text-sm text-muted-foreground">No orders yet.</p>
                 ) : (
@@ -180,7 +184,10 @@ function AdminCustomerDetailPage() {
                 ) : (
                   <ul className="divide-y divide-border">
                     {licenses.map((license) => (
-                      <li key={license.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
+                      <li
+                        key={license.id}
+                        className="flex flex-wrap items-center gap-3 px-5 py-3.5"
+                      >
                         <div className="min-w-0 flex-1">
                           <Link
                             to="/admin/products/$productId"
@@ -251,7 +258,11 @@ function AdminCustomerDetailPage() {
 
             <TabsContent value="wishlist" className="mt-6">
               <Panel>
-                <PanelHeader title="Saved items" description="Sample wishlist entries." icon={Heart} />
+                <PanelHeader
+                  title="Saved items"
+                  description="Sample wishlist entries."
+                  icon={Heart}
+                />
                 <ul className="divide-y divide-border">
                   {wishlist.map((id) => (
                     <li key={id} className="flex items-center gap-3 px-5 py-3.5">

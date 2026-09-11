@@ -76,7 +76,9 @@ function AdminCoupons() {
   });
 
   const rows = (data ?? []).filter((c) =>
-    search.trim() ? `${c.code} ${c.scope}`.toLowerCase().includes(search.trim().toLowerCase()) : true,
+    search.trim()
+      ? `${c.code} ${c.scope}`.toLowerCase().includes(search.trim().toLowerCase())
+      : true,
   );
 
   const discount = (c: Coupon) => (c.type === "percent" ? `${c.value}%` : formatMoney(c.value));
@@ -265,8 +267,8 @@ function AdminCoupons() {
       )}
 
       <DemoNote>
-        Coupons are stored in this browser. Applying them at checkout becomes a server-side validation
-        once the commerce API is connected.
+        Coupons are stored in this browser. Applying them at checkout becomes a server-side
+        validation once the commerce API is connected.
       </DemoNote>
 
       <Dialog open={creating} onOpenChange={setCreating}>

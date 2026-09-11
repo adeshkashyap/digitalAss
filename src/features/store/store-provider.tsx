@@ -18,7 +18,7 @@ const WISHLIST_KEY = "devassets.wishlist.v1";
 
 export interface CartLine extends CartItem {
   product: Product;
-  unitPrice: number
+  unitPrice: number;
   lineTotal: number;
   licenseName: string;
 }
@@ -91,9 +91,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const existing = prev.find((i) => i.productId === productId && i.license === license);
       if (existing) {
         added = false;
-        return prev.map((i) =>
-          i === existing ? { ...i, savedForLater: false } : i,
-        );
+        return prev.map((i) => (i === existing ? { ...i, savedForLater: false } : i));
       }
       return [...prev, { productId, license, quantity: 1 }];
     });
@@ -106,9 +104,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const setLicense = useCallback((productId: string, from: LicenseId, to: LicenseId) => {
     setCart((prev) => {
-      const withoutTarget = prev.filter(
-        (i) => !(i.productId === productId && i.license === to),
-      );
+      const withoutTarget = prev.filter((i) => !(i.productId === productId && i.license === to));
       return withoutTarget.map((i) =>
         i.productId === productId && i.license === from ? { ...i, license: to } : i,
       );

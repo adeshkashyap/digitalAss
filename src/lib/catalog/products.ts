@@ -1,9 +1,6 @@
 import type { Product } from "./types";
 
-const reviewSeed = (
-  entries: [string, string, number, string, string, string][],
-  prefix: string,
-) =>
+const reviewSeed = (entries: [string, string, number, string, string, string][], prefix: string) =>
   entries.map(([author, role, rating, date, title, body], i) => ({
     id: `${prefix}-r${i + 1}`,
     author,

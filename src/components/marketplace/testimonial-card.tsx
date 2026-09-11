@@ -19,7 +19,9 @@ export function TestimonialCard({
     >
       <div className="flex items-center justify-between gap-3">
         <Quote className="h-5 w-5 shrink-0 text-brand" aria-hidden />
-        <span className="rounded border border-border px-2 py-0.5 font-mono text-[9px] uppercase text-muted-foreground">Illustrative</span>
+        <span className="rounded border border-border px-2 py-0.5 font-mono text-[9px] uppercase text-muted-foreground">
+          Illustrative
+        </span>
       </div>
       <blockquote className="text-[0.9375rem] leading-relaxed text-foreground/90">
         {testimonial.quote}

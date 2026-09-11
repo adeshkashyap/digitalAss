@@ -10,12 +10,7 @@ import type { LicenseId, PreviewKind, Tint } from "@/lib/catalog/types";
 /* ------------------------------------------------------------------ roles */
 
 export type AdminRole =
-  | "super-admin"
-  | "admin"
-  | "support"
-  | "content-manager"
-  | "finance"
-  | "analyst";
+  "super-admin" | "admin" | "support" | "content-manager" | "finance" | "analyst";
 
 export interface AdminUser {
   id: string;

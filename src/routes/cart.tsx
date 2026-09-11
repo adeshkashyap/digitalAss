@@ -32,6 +32,7 @@ import { type CartLine, useStore } from "@/features/store/store-provider";
 import { licenses } from "@/lib/catalog/licenses";
 import { formatPrice } from "@/lib/catalog/service";
 import type { LicenseId } from "@/lib/catalog/types";
+import { cn } from "@/lib/utils";
 
 const title = "Your cart — DevAssets";
 const description =
@@ -56,15 +57,19 @@ function CartPage() {
   const store = useStore();
   const { lines, savedLines, subtotal, discount, discountCode, total, hydrated } = store;
   const [code, setCode] = useState("");
+  const [discountMessage, setDiscountMessage] = useState<{
+    type: "ok" | "err";
+    text: string;
+  } | null>(null);
 
   const submitCode = (e: React.FormEvent) => {
     e.preventDefault();
     const res = store.applyDiscount(code);
     if (res.ok) {
-      toast.success(res.message);
+      setDiscountMessage({ type: "ok", text: res.message });
       setCode("");
     } else {
-      toast.error(res.message);
+      setDiscountMessage({ type: "err", text: res.message });
     }
   };
 
@@ -147,20 +152,39 @@ function CartPage() {
                   Order summary
                 </h2>
 
-                <form onSubmit={submitCode} className="mt-5 flex gap-2">
-                  <label htmlFor="discount" className="sr-only">
-                    Discount code
-                  </label>
-                  <Input
-                    id="discount"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    placeholder="Discount code"
-                    className="h-9"
-                  />
-                  <Button type="submit" variant="subtle" size="sm" className="shrink-0">
-                    <Tag /> Apply
-                  </Button>
+                <form onSubmit={submitCode} className="mt-5 flex flex-col gap-2">
+                  <div className="flex gap-2">
+                    <label htmlFor="discount" className="sr-only">
+                      Discount code
+                    </label>
+                    <Input
+                      id="discount"
+                      value={code}
+                      onChange={(e) => {
+                        setCode(e.target.value);
+                        setDiscountMessage(null);
+                      }}
+                      placeholder="Discount code"
+                      className="h-11"
+                      aria-describedby={discountMessage ? "discount-feedback" : undefined}
+                    />
+                    <Button type="submit" variant="subtle" className="h-11 shrink-0 touch-target">
+                      <Tag /> Apply
+                    </Button>
+                  </div>
+                  {discountMessage && (
+                    <p
+                      id="discount-feedback"
+                      role="status"
+                      aria-live="polite"
+                      className={cn(
+                        "text-xs",
+                        discountMessage.type === "ok" ? "text-success" : "text-destructive",
+                      )}
+                    >
+                      {discountMessage.text}
+                    </p>
+                  )}
                 </form>
 
                 {discountCode && (
@@ -296,12 +320,16 @@ function CartRow({ line, saved = false }: { line: CartLine; saved?: boolean }) {
             </Select>
           </div>
 
-          <div role="group" aria-label={`Quantity for ${product.name}`} className="inline-flex h-9 items-center rounded-md border border-border">
+          <div
+            role="group"
+            aria-label={`Quantity for ${product.name}`}
+            className="inline-flex h-11 items-center rounded-md border border-border"
+          >
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
-              className="h-full text-muted-foreground disabled:opacity-40"
+              size="icon"
+              className="h-11 w-11 text-muted-foreground disabled:opacity-40"
               onClick={() => store.setQuantity(product.id, license, quantity - 1)}
               disabled={quantity <= 1}
               aria-label={`Decrease seats for ${product.name}`}
@@ -314,8 +342,8 @@ function CartRow({ line, saved = false }: { line: CartLine; saved?: boolean }) {
             <Button
               type="button"
               variant="ghost"
-              size="icon-sm"
-              className="h-full text-muted-foreground disabled:opacity-40"
+              size="icon"
+              className="h-11 w-11 text-muted-foreground disabled:opacity-40"
               onClick={() => store.setQuantity(product.id, license, quantity + 1)}
               disabled={quantity >= 10}
               aria-label={`Increase seats for ${product.name}`}

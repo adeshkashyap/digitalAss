@@ -44,10 +44,10 @@ const columns: { title: string; links: { label: string; to?: string; soon?: bool
 ];
 
 const socials = [
-  { label: "GitHub", Icon: Github },
-  { label: "X", Icon: Twitter },
-  { label: "LinkedIn", Icon: Linkedin },
-  { label: "YouTube", Icon: Youtube },
+  { label: "GitHub", Icon: Github, href: "https://github.com" },
+  { label: "X", Icon: Twitter, href: "https://x.com" },
+  { label: "LinkedIn", Icon: Linkedin, href: "https://linkedin.com" },
+  { label: "YouTube", Icon: Youtube, href: "https://youtube.com" },
 ];
 
 export function Footer() {
@@ -62,15 +62,18 @@ export function Footer() {
               is reviewed against a published quality checklist before release.
             </p>
             <div className="mt-6 flex gap-2">
-              {socials.map(({ label, Icon }) => (
-                <span
+              {socials.map(({ label, Icon, href }) => (
+                <a
                   key={label}
-                  title={`${label} — coming soon`}
-                  className="grid h-9 w-9 place-items-center rounded-md border border-border text-muted-foreground"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${label} — placeholder link`}
+                  className="grid h-11 w-11 place-items-center rounded-md border border-border text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
                 >
                   <Icon className="h-4 w-4" aria-hidden />
-                  <span className="sr-only">{label} (coming soon)</span>
-                </span>
+                  <span className="sr-only">{label}</span>
+                </a>
               ))}
             </div>
           </div>

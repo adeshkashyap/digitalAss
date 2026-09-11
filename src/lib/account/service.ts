@@ -96,9 +96,7 @@ const delay = <T>(value: T): Promise<T> =>
 /** Drops undefined entries so stored overrides never blank out a required field. */
 function defined<T extends object>(value: T | undefined): Partial<T> {
   if (!value) return {};
-  return Object.fromEntries(
-    Object.entries(value).filter(([, v]) => v !== undefined),
-  ) as Partial<T>;
+  return Object.fromEntries(Object.entries(value).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 
 export async function getCurrentUser(): Promise<CustomerUser> {
@@ -281,7 +279,9 @@ export async function dismissNotification(id: string): Promise<void> {
 export async function getSupportTickets(): Promise<SupportTicket[]> {
   const state = load();
   return delay(
-    [...(state.tickets ?? []), ...mockTickets].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    [...(state.tickets ?? []), ...mockTickets].sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt),
+    ),
   );
 }
 

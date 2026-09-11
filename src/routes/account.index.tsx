@@ -31,12 +31,7 @@ import {
 import { PurchaseRow } from "@/features/account/library-card";
 import { useDownloadAction } from "@/features/account/use-download";
 import { useStore } from "@/features/store/store-provider";
-import {
-  downloadsQuery,
-  ordersQuery,
-  purchasesQuery,
-  userQuery,
-} from "@/lib/account/queries";
+import { downloadsQuery, ordersQuery, purchasesQuery, userQuery } from "@/lib/account/queries";
 import { getRecentlyViewedSlugs, purchaseHasUpdate } from "@/lib/account/service";
 import { productById, productBySlug } from "@/lib/catalog/products";
 import { formatDate, formatPrice } from "@/lib/catalog/service";
@@ -76,9 +71,7 @@ function AccountOverview() {
   const entries = active
     .map((purchase) => {
       const product = productById(purchase.productId);
-      return product
-        ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase) }
-        : null;
+      return product ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase) } : null;
     })
     .filter((e): e is NonNullable<typeof e> => e !== null);
 

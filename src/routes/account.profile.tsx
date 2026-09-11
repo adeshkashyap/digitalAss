@@ -153,7 +153,12 @@ function ProfileForm({ user }: { user: CustomerUser }) {
         <Field id="email" label="Email" error={errors.email?.message}>
           <Input id="email" type="email" autoComplete="email" {...register("email")} />
         </Field>
-        <Field id="company" label="Company / organization" hint="Optional" error={errors.company?.message}>
+        <Field
+          id="company"
+          label="Company / organization"
+          hint="Optional"
+          error={errors.company?.message}
+        >
           <Input id="company" autoComplete="organization" {...register("company")} />
         </Field>
         <Field id="location" label="Location" hint="Optional" error={errors.location?.message}>
@@ -324,7 +329,11 @@ function ProfilePage() {
             </DemoNote>
 
             <Panel className="overflow-hidden">
-              <PanelHeader title="Password" description="Change your sign-in password." icon={KeyRound} />
+              <PanelHeader
+                title="Password"
+                description="Change your sign-in password."
+                icon={KeyRound}
+              />
               <div className="grid gap-4 p-5 sm:grid-cols-3">
                 {[
                   ["current", "Current password"],

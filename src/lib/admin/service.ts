@@ -368,9 +368,9 @@ export async function getAdminCustomerById(id: string): Promise<AdminCustomerDet
   if (!customer) return delay(undefined);
   const orders = adminOrders.filter((o) => o.customerId === id);
   const downloads = adminDownloads.filter((d) => d.customerId === id);
-  const paidLines = orders.filter((o) => o.status === "paid").flatMap((o) =>
-    o.lines.map((l) => ({ order: o, line: l })),
-  );
+  const paidLines = orders
+    .filter((o) => o.status === "paid")
+    .flatMap((o) => o.lines.map((l) => ({ order: o, line: l })));
   const detail: AdminCustomerDetail = {
     customer,
     orders,
@@ -498,8 +498,7 @@ export async function getIssuedLicenses(): Promise<IssuedLicense[]> {
         version: line.version,
         purchasedAt: purchased,
         updatesUntil: until.toISOString().slice(0, 10),
-        status:
-          order.status === "refunded" ? "revoked" : expired ? "updates-expired" : "active",
+        status: order.status === "refunded" ? "revoked" : expired ? "updates-expired" : "active",
         reference: `DA-${line.license.slice(0, 3).toUpperCase()}-${order.reference.replace("ORD-", "")}-${i + 1}`,
       });
     });
@@ -681,7 +680,12 @@ export async function getAdminDashboard(range: ReportRange = "30d"): Promise<Adm
     topProducts: [...products]
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5)
-      .map((p) => ({ productId: p.id, sales: p.sales, revenue: p.revenue, downloads: p.downloads })),
+      .map((p) => ({
+        productId: p.id,
+        sales: p.sales,
+        revenue: p.revenue,
+        downloads: p.downloads,
+      })),
     recentOrders: adminOrders.slice(0, 6),
     recentCustomers: [...adminCustomers]
       .sort((a, b) => b.joinedAt.localeCompare(a.joinedAt))

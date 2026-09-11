@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
+  ChevronDown,
   CreditCard,
   Loader2,
   Lock,
@@ -29,6 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -38,8 +40,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageHero } from "@/features/catalog/page-hero";
-import { useStore } from "@/features/store/store-provider";
+import { type CartLine, useStore } from "@/features/store/store-provider";
 import { formatPrice } from "@/lib/catalog/service";
+import { cn } from "@/lib/utils";
 
 const title = "Checkout — DevAssets";
 const description =
@@ -87,11 +90,62 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+function CheckoutProgress({ step }: { step: "cart" | "details" | "payment" }) {
+  const items = [
+    { id: "cart", label: "Cart", to: "/cart" as const },
+    { id: "details", label: "Details" },
+    { id: "payment", label: "Payment" },
+  ];
+  const currentIndex = items.findIndex((i) => i.id === step);
+
+  return (
+    <nav aria-label="Checkout progress" className="shell border-b border-border py-4">
+      <ol className="flex flex-wrap items-center gap-2 text-sm">
+        {items.map((item, index) => {
+          const done = index < currentIndex;
+          const active = index === currentIndex;
+          return (
+            <li key={item.id} className="flex items-center gap-2">
+              {index > 0 && (
+                <span className="text-muted-foreground" aria-hidden>
+                  /
+                </span>
+              )}
+              {item.to ? (
+                <Link
+                  to={item.to}
+                  className={cn(
+                    done && "text-muted-foreground hover:text-foreground",
+                    active && "font-medium text-foreground",
+                    !done && !active && "text-muted-foreground",
+                  )}
+                  aria-current={active ? "step" : undefined}
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  className={cn(active ? "font-medium text-foreground" : "text-muted-foreground")}
+                  aria-current={active ? "step" : undefined}
+                >
+                  {item.label}
+                </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
 function CheckoutPage() {
   const store = useStore();
   const { lines, subtotal, discount, discountCode, total, hydrated } = store;
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -131,7 +185,11 @@ function CheckoutPage() {
     return (
       <>
         <PageHero
-          crumbs={[{ label: "Home", to: "/" }, { label: "Cart", to: "/cart" }, { label: "Checkout" }]}
+          crumbs={[
+            { label: "Home", to: "/" },
+            { label: "Cart", to: "/cart" },
+            { label: "Checkout" },
+          ]}
           eyebrow="Checkout"
           title="Nothing to check out yet"
         />
@@ -159,14 +217,52 @@ function CheckoutPage() {
         title="Complete your order"
         description="License keys and download links are issued to the email address you enter below."
       />
+      <CheckoutProgress step="details" />
 
       <div className="shell grid gap-8 py-12 lg:grid-cols-[1.5fr_1fr] lg:items-start lg:py-16">
+        <Collapsible open={summaryOpen} onOpenChange={setSummaryOpen} className="lg:hidden">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              Order summary · {formatPrice(grandTotal)}
+              <ChevronDown
+                className={cn("transition-transform", summaryOpen && "rotate-180")}
+                aria-hidden
+              />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-3 rounded-lg border border-border bg-card p-4">
+            <CheckoutSummary
+              lines={lines}
+              subtotal={subtotal}
+              discount={discount}
+              discountCode={discountCode}
+              vat={vat}
+              grandTotal={grandTotal}
+              compact
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="min-w-0 space-y-6" noValidate>
-            <section className="rounded-lg border border-border bg-card p-6">
-              <h2 className="font-display text-base font-semibold tracking-tight">
+          <form
+            onSubmit={form.handleSubmit(onSubmit, () => {
+              setValidationError("Fix the highlighted fields to continue.");
+            })}
+            className="min-w-0 space-y-6"
+            noValidate
+          >
+            {validationError && Object.keys(form.formState.errors).length > 0 && (
+              <Alert variant="destructive" role="alert">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Check your details</AlertTitle>
+                <AlertDescription>{validationError}</AlertDescription>
+              </Alert>
+            )}
+
+            <fieldset className="rounded-lg border border-border bg-card p-6">
+              <legend className="font-display text-base font-semibold tracking-tight">
                 1. Where should we send your licenses?
-              </h2>
+              </legend>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -220,12 +316,12 @@ function CheckoutPage() {
                   )}
                 />
               </div>
-            </section>
+            </fieldset>
 
-            <section className="rounded-lg border border-border bg-card p-6">
-              <h2 className="font-display text-base font-semibold tracking-tight">
+            <fieldset className="rounded-lg border border-border bg-card p-6">
+              <legend className="font-display text-base font-semibold tracking-tight">
                 2. Billing details
-              </h2>
+              </legend>
               <div className="mt-5 grid gap-5 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -308,10 +404,12 @@ function CheckoutPage() {
                   )}
                 />
               </div>
-            </section>
+            </fieldset>
 
-            <section className="rounded-lg border border-border bg-card p-6">
-              <h2 className="font-display text-base font-semibold tracking-tight">3. Payment</h2>
+            <fieldset className="rounded-lg border border-border bg-card p-6">
+              <legend className="font-display text-base font-semibold tracking-tight">
+                3. Payment
+              </legend>
               <div className="mt-5 rounded-xl border border-dashed border-border-strong bg-surface/50 p-5">
                 <div className="flex items-start gap-3">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-surface-2 text-brand">
@@ -364,7 +462,7 @@ function CheckoutPage() {
                 </Alert>
               )}
 
-                <Button
+              <Button
                 type="submit"
                 variant="hero"
                 size="xl"
@@ -387,98 +485,147 @@ function CheckoutPage() {
                   <ArrowLeft /> Back to cart
                 </Link>
               </Button>
-            </section>
+            </fieldset>
           </form>
         </Form>
 
-        <aside className="lg:sticky lg:top-24">
-          <div className="rounded-lg border border-border bg-card p-6 shadow-[var(--shadow-elevated)]">
-            <h2 className="font-display text-base font-semibold tracking-tight">Order summary</h2>
-
-            <ul className="mt-5 space-y-4">
-              {lines.map((line) => (
-                <li key={`${line.productId}-${line.license}`} className="flex gap-3">
-                  <span className="h-14 w-20 shrink-0 overflow-hidden rounded-md border border-border">
-                    <ProductScreenshot kind={line.product.preview} tint={line.product.tint} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{line.product.name}</span>
-                    <span className="block text-xs text-muted-foreground">
-                      {line.licenseName} license · {line.quantity}{" "}
-                      {line.quantity === 1 ? "seat" : "seats"}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-sm font-medium tabular-nums">
-                    {formatPrice(line.lineTotal)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <form
-              className="mt-5 flex gap-2 border-t border-border pt-5"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const res = store.applyDiscount(code);
-                if (res.ok) {
-                  toast.success(res.message);
-                  setCode("");
-                } else {
-                  toast.error(res.message);
-                }
-              }}
-            >
-              <label htmlFor="checkout-discount" className="sr-only">
-                Discount code
-              </label>
-              <Input
-                id="checkout-discount"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                placeholder="Discount code"
-                className="h-9"
-              />
-              <Button type="submit" variant="subtle" size="sm" className="shrink-0">
-                <Tag /> Apply
-              </Button>
-            </form>
-
-            <dl className="mt-5 space-y-3 border-t border-border pt-5 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Subtotal</dt>
-                <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Discount ({discountCode})</dt>
-                  <dd className="tabular-nums text-success">−{formatPrice(discount)}</dd>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">VAT (estimated 20%)</dt>
-                <dd className="tabular-nums">{formatPrice(vat)}</dd>
-              </div>
-              <div className="flex items-baseline justify-between border-t border-border pt-3">
-                <dt className="font-medium">Total due</dt>
-                <dd className="font-display text-xl font-semibold tabular-nums">
-                  {formatPrice(grandTotal)}
-                </dd>
-              </div>
-            </dl>
-
-            <ul className="mt-5 space-y-2.5 border-t border-border pt-5 text-xs text-muted-foreground">
-              <li className="flex items-center gap-2">
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-success" aria-hidden /> 14-day
-                refund policy on every template
-              </li>
-              <li className="flex items-center gap-2">
-                <Lock className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden /> Card data handled
-                by the payment provider only
-              </li>
-            </ul>
-          </div>
+        <aside className="hidden lg:sticky lg:top-24 lg:block">
+          <CheckoutSummary
+            lines={lines}
+            subtotal={subtotal}
+            discount={discount}
+            discountCode={discountCode}
+            vat={vat}
+            grandTotal={grandTotal}
+            code={code}
+            setCode={setCode}
+            onApplyCode={(value) => {
+              const res = store.applyDiscount(value);
+              if (res.ok) {
+                toast.success(res.message);
+                setCode("");
+              } else {
+                toast.error(res.message);
+              }
+            }}
+          />
         </aside>
       </div>
     </>
+  );
+}
+
+function CheckoutSummary({
+  lines,
+  subtotal,
+  discount,
+  discountCode,
+  vat,
+  grandTotal,
+  code,
+  setCode,
+  onApplyCode,
+  compact = false,
+}: {
+  lines: CartLine[];
+  subtotal: number;
+  discount: number;
+  discountCode: string | null;
+  vat: number;
+  grandTotal: number;
+  code?: string;
+  setCode?: (v: string) => void;
+  onApplyCode?: (code: string) => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-lg border border-border bg-card shadow-[var(--shadow-elevated)]",
+        compact ? "p-4" : "p-6",
+      )}
+    >
+      <h2 className="font-display text-base font-semibold tracking-tight">Order summary</h2>
+
+      <ul className="mt-5 space-y-4">
+        {lines.map((line) => (
+          <li key={`${line.productId}-${line.license}`} className="flex gap-3">
+            <span className="h-14 w-20 shrink-0 overflow-hidden rounded-md border border-border">
+              <ProductScreenshot kind={line.product.preview} tint={line.product.tint} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-medium">{line.product.name}</span>
+              <span className="block text-xs text-muted-foreground">
+                {line.licenseName} license · {line.quantity}{" "}
+                {line.quantity === 1 ? "seat" : "seats"}
+              </span>
+            </span>
+            <span className="shrink-0 text-sm font-medium tabular-nums">
+              {formatPrice(line.lineTotal)}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {!compact && onApplyCode && setCode && code !== undefined && (
+        <form
+          className="mt-5 flex gap-2 border-t border-border pt-5"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onApplyCode(code);
+          }}
+        >
+          <label htmlFor="checkout-discount" className="sr-only">
+            Discount code
+          </label>
+          <Input
+            id="checkout-discount"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Discount code"
+            className="h-11"
+          />
+          <Button type="submit" variant="subtle" className="h-11 shrink-0 touch-target">
+            <Tag /> Apply
+          </Button>
+        </form>
+      )}
+
+      <dl className="mt-5 space-y-3 border-t border-border pt-5 text-sm">
+        <div className="flex justify-between">
+          <dt className="text-muted-foreground">Subtotal</dt>
+          <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
+        </div>
+        {discount > 0 && (
+          <div className="flex justify-between">
+            <dt className="text-muted-foreground">Discount ({discountCode})</dt>
+            <dd className="tabular-nums text-success">−{formatPrice(discount)}</dd>
+          </div>
+        )}
+        <div className="flex justify-between">
+          <dt className="text-muted-foreground">VAT (estimated 20%)</dt>
+          <dd className="tabular-nums">{formatPrice(vat)}</dd>
+        </div>
+        <div className="flex items-baseline justify-between border-t border-border pt-3">
+          <dt className="font-medium">Total due</dt>
+          <dd className="font-display text-xl font-semibold tabular-nums">
+            {formatPrice(grandTotal)}
+          </dd>
+        </div>
+      </dl>
+
+      {!compact && (
+        <ul className="mt-5 space-y-2.5 border-t border-border pt-5 text-xs text-muted-foreground">
+          <li className="flex items-center gap-2">
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-success" aria-hidden />
+            14-day refund policy on every template
+          </li>
+          <li className="flex items-center gap-2">
+            <Lock className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden />
+            Card data handled by the payment provider only
+          </li>
+        </ul>
+      )}
+    </div>
   );
 }

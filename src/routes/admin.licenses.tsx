@@ -62,7 +62,12 @@ function AdminLicenses() {
       .filter((l) => (type === "all" ? true : l.type === type))
       .filter((l) =>
         q
-          ? [l.reference, l.orderReference, productById(l.productId)?.name, customerName(l.customerId)]
+          ? [
+              l.reference,
+              l.orderReference,
+              productById(l.productId)?.name,
+              customerName(l.customerId),
+            ]
               .filter(Boolean)
               .join(" ")
               .toLowerCase()
@@ -250,8 +255,8 @@ function AdminLicenses() {
       )}
 
       <DemoNote>
-        Licenses are derived from the sample order ledger. Key generation, revocation and entitlement
-        checks move server-side once the commerce API and auth are connected.
+        Licenses are derived from the sample order ledger. Key generation, revocation and
+        entitlement checks move server-side once the commerce API and auth are connected.
       </DemoNote>
     </>
   );

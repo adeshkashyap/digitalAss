@@ -92,11 +92,7 @@ export function DownloadRow({
             disabled={pendingFileId === source.id}
             onClick={() => onDownload(item, source)}
           >
-            {pendingFileId === source.id ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Download />
-            )}
+            {pendingFileId === source.id ? <Loader2 className="animate-spin" /> : <Download />}
             {pendingFileId === source.id ? "Preparing" : "Download"}
           </Button>
           <Button

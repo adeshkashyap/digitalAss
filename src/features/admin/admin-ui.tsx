@@ -331,7 +331,8 @@ export function DataTable<T>({
   caption?: string;
 }) {
   const selectable = !!selectedIds && !!onToggleRow;
-  const allSelected = selectable && rows.length > 0 && rows.every((r) => selectedIds!.includes(getRowId(r)));
+  const allSelected =
+    selectable && rows.length > 0 && rows.every((r) => selectedIds!.includes(getRowId(r)));
 
   return (
     <>
@@ -490,13 +491,7 @@ export function ProductCell({ product }: { product: AdminProduct }) {
 
 /* --------------------------------------------------------------- notices */
 
-export function NotConnectedBanner({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+export function NotConnectedBanner({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div
       role="note"

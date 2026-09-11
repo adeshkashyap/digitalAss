@@ -11,6 +11,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { DialogTitle } from "@/components/ui/dialog";
 import { categories } from "@/lib/catalog/categories";
 import { products } from "@/lib/catalog/products";
 import { formatPrice } from "@/lib/catalog/service";
@@ -44,7 +45,11 @@ export function SearchCommand({
 
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput placeholder="Search templates, categories, technologies…" />
+      <DialogTitle className="sr-only">Search templates and pages</DialogTitle>
+      <CommandInput
+        placeholder="Search templates, categories, technologies…"
+        aria-label="Search templates, categories, technologies"
+      />
       <CommandList>
         <CommandEmpty>No matches. Try “dashboard”, “hotel” or “checkout”.</CommandEmpty>
         <CommandGroup heading="Templates">
@@ -82,10 +87,16 @@ export function SearchCommand({
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Pages">
-          <CommandItem value="all templates catalog" onSelect={() => go(() => navigate({ to: "/templates" }))}>
+          <CommandItem
+            value="all templates catalog"
+            onSelect={() => go(() => navigate({ to: "/templates" }))}
+          >
             <Sparkles /> Browse all templates
           </CommandItem>
-          <CommandItem value="pricing licensing" onSelect={() => go(() => navigate({ to: "/pricing" }))}>
+          <CommandItem
+            value="pricing licensing"
+            onSelect={() => go(() => navigate({ to: "/pricing" }))}
+          >
             <Receipt /> Licensing & pricing
           </CommandItem>
         </CommandGroup>

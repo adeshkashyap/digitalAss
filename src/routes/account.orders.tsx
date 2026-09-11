@@ -14,7 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   AccountPageHeader,
   DemoNote,
@@ -72,9 +78,7 @@ function OrderDetails({ order }: { order: Order }) {
             const product = productById(line.productId);
             return (
               <li key={`${line.productId}-${line.license}`} className="flex gap-3 p-3">
-                <div className="w-24 shrink-0">
-                  {product && <ProductThumb product={product} />}
-                </div>
+                <div className="w-24 shrink-0">{product && <ProductThumb product={product} />}</div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     {product ? (
@@ -259,11 +263,7 @@ function OrdersPage() {
                 <thead>
                   <tr className="border-b border-border text-left">
                     {["Order", "Date", "Items", "Licenses", "Status", "Total", ""].map((h, i) => (
-                      <th
-                        key={h || i}
-                        scope="col"
-                        className="eyebrow px-5 py-2.5 text-[0.625rem]"
-                      >
+                      <th key={h || i} scope="col" className="eyebrow px-5 py-2.5 text-[0.625rem]">
                         {h}
                       </th>
                     ))}
@@ -284,7 +284,9 @@ function OrdersPage() {
                           .join(", ")}
                       </td>
                       <td className="px-5 py-3 text-xs text-muted-foreground">
-                        {[...new Set(order.lines.map((l) => licenseById(l.license).name))].join(", ")}
+                        {[...new Set(order.lines.map((l) => licenseById(l.license).name))].join(
+                          ", ",
+                        )}
                       </td>
                       <td className="px-5 py-3">
                         <StatusBadge tone={orderStatusTone[order.status]}>
@@ -316,7 +318,9 @@ function OrdersPage() {
                     </StatusBadge>
                   </div>
                   <p className="text-sm">
-                    {order.lines.map((l) => productById(l.productId)?.name ?? "Template").join(", ")}
+                    {order.lines
+                      .map((l) => productById(l.productId)?.name ?? "Template")
+                      .join(", ")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {formatDate(order.placedAt)} ·{" "}

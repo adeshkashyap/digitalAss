@@ -119,7 +119,12 @@ function SignupPage() {
               <FormItem>
                 <FormLabel>Work email</FormLabel>
                 <FormControl>
-                  <Input type="email" autoComplete="email" placeholder="you@company.com" {...field} />
+                  <Input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@company.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -145,7 +150,8 @@ function SignupPage() {
                       type="button"
                       onClick={() => setVisible((v) => !v)}
                       aria-label={visible ? "Hide password" : "Show password"}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:text-foreground"
+                      aria-pressed={visible}
+                      className="absolute right-2 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>

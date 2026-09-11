@@ -125,9 +125,7 @@ function AdminOrders() {
     {
       key: "payment",
       header: "Payment",
-      cell: (o) => (
-        <span className="text-xs text-muted-foreground">{o.paymentLabel}</span>
-      ),
+      cell: (o) => <span className="text-xs text-muted-foreground">{o.paymentLabel}</span>,
     },
     {
       key: "total",
@@ -255,8 +253,8 @@ function AdminOrders() {
       )}
 
       <DemoNote>
-        Orders are seeded sample records. Refunds, invoices and receipts become real actions once the
-        payment provider and email delivery are connected.
+        Orders are seeded sample records. Refunds, invoices and receipts become real actions once
+        the payment provider and email delivery are connected.
       </DemoNote>
     </>
   );

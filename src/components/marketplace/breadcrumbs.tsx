@@ -26,7 +26,10 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
                   {item.label}
                 </Link>
               ) : (
-                <span className={cn(last && "text-foreground")} aria-current={last ? "page" : undefined}>
+                <span
+                  className={cn(last && "text-foreground")}
+                  aria-current={last ? "page" : undefined}
+                >
                   {item.label}
                 </span>
               )}

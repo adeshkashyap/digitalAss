@@ -118,12 +118,7 @@ function LicensesPage() {
             const product = productById(record.productId);
             if (!product) return null;
             return (
-              <LicenseCard
-                key={record.id}
-                record={record}
-                product={product}
-                onView={setSelected}
-              />
+              <LicenseCard key={record.id} record={record} product={product} onView={setSelected} />
             );
           })}
         </div>

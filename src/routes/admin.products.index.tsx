@@ -40,7 +40,12 @@ import {
   type Column,
 } from "@/features/admin/admin-ui";
 import { adminCategoriesQuery, adminProductsQuery } from "@/lib/admin/queries";
-import { bulkProductAction, duplicateProduct, formatMoney, formatNumber } from "@/lib/admin/service";
+import {
+  bulkProductAction,
+  duplicateProduct,
+  formatMoney,
+  formatNumber,
+} from "@/lib/admin/service";
 import type { AdminProduct, ProductStatus } from "@/lib/admin/types";
 
 export const Route = createFileRoute("/admin/products/")({ component: AdminProducts });
@@ -68,8 +73,7 @@ function AdminProducts() {
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["admin"], exact: false });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin"], exact: false });
 
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkProductAction>[1]) =>
@@ -98,10 +102,7 @@ function AdminProducts() {
       .filter((p) => (category === "all" ? true : p.categorySlug === category))
       .filter((p) =>
         q
-          ? [p.name, p.slug, p.tagline, ...p.tags, ...p.tech]
-              .join(" ")
-              .toLowerCase()
-              .includes(q)
+          ? [p.name, p.slug, p.tagline, ...p.tags, ...p.tech].join(" ").toLowerCase().includes(q)
           : true,
       )
       .sort(sorters[sort]);
@@ -186,7 +187,12 @@ function AdminProducts() {
           >
             <Copy />
           </Button>
-          <Button asChild variant="ghost" size="icon" aria-label={`View ${p.name} on the storefront`}>
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            aria-label={`View ${p.name} on the storefront`}
+          >
             <Link to="/templates/$slug" params={{ slug: p.slug }}>
               <ExternalLink />
             </Link>
@@ -288,9 +294,7 @@ function AdminProducts() {
 
       {selected.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-brand/35 bg-brand/[0.06] px-4 py-3">
-          <span className="text-sm font-medium">
-            {selected.length} selected
-          </span>
+          <span className="text-sm font-medium">{selected.length} selected</span>
           <div className="ml-auto flex flex-wrap gap-2">
             <Button size="sm" variant="subtle" onClick={() => bulk.mutate("publish")}>
               Publish
@@ -416,8 +420,8 @@ function AdminProducts() {
                   <StatusBadge>v{p.version}</StatusBadge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {formatNumber(p.sales)} sales · {formatMoney(p.revenue)} · {formatNumber(p.downloads)}{" "}
-                  downloads
+                  {formatNumber(p.sales)} sales · {formatMoney(p.revenue)} ·{" "}
+                  {formatNumber(p.downloads)} downloads
                 </p>
                 <div className="flex gap-2">
                   <Button asChild size="sm" variant="subtle" className="flex-1">

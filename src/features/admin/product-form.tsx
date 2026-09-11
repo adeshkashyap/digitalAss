@@ -326,9 +326,7 @@ export function ProductForm({
                       onCheckedChange={(v) =>
                         setValue(
                           "licenseIds",
-                          v === true
-                            ? [...licenseIds, id]
-                            : licenseIds.filter((l) => l !== id),
+                          v === true ? [...licenseIds, id] : licenseIds.filter((l) => l !== id),
                           { shouldValidate: true },
                         )
                       }

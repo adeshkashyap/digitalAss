@@ -59,8 +59,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                   activeOptions={{ exact: item.to === "/account" }}
                   className="group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-2/70 hover:text-foreground"
                   activeProps={{
-                    className:
-                      "bg-surface-2 text-foreground shadow-[inset_2px_0_0_0_var(--brand)]",
+                    className: "bg-surface-2 text-foreground shadow-[inset_2px_0_0_0_var(--brand)]",
                     "aria-current": "page",
                   }}
                 >
@@ -185,7 +184,12 @@ export function AccountShell() {
             <div className="flex h-16 items-center gap-2 px-4 sm:px-6 lg:px-8">
               <Sheet open={navOpen} onOpenChange={setNavOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open account navigation">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden"
+                    aria-label="Open account navigation"
+                  >
                     <Menu />
                   </Button>
                 </SheetTrigger>

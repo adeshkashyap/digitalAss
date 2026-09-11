@@ -135,7 +135,8 @@ function AnalyticsPreview() {
             <div
               className="aspect-square w-full max-w-14 rounded-full"
               style={{
-                background: `conic-gradient(var(--tint) 0 62%, var(--tint-2) 62% 84%, oklch(0.6 0.02 265 / 0.25) 84% 100%)`,
+                background:
+                  "conic-gradient(var(--tint) 0 62%, var(--tint-2) 62% 84%, var(--chart-neutral) 84% 100%)",
               }}
             />
           </div>
