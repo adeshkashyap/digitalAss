@@ -78,6 +78,24 @@ catalogRouter.get("/products/featured", async (req, res, next) => {
   }
 });
 
+catalogRouter.get("/products/facets", async (_req, res, next) => {
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: "PUBLISHED" },
+      select: { tech: true, tags: true, price: true, salePrice: true },
+    });
+    const tech = [...new Set(products.flatMap((p) => p.tech))].sort();
+    const tags = [...new Set(products.flatMap((p) => p.tags))].sort();
+    const maxPrice = products.reduce(
+      (max, p) => Math.max(max, p.salePrice ?? p.price),
+      0,
+    );
+    res.json({ tech, tags, maxPrice });
+  } catch (err) {
+    next(err);
+  }
+});
+
 catalogRouter.get("/products/new", async (req, res, next) => {
   try {
     const limit = Math.min(20, Number(req.query.limit ?? 3));
