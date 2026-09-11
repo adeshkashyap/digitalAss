@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+  CONTENT_MANAGER
+  FINANCE
+  ANALYST
+}
+
+enum ProductStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
+enum LicenseType {
+  PERSONAL
+  COMMERCIAL
+  AGENCY
+}
+
+enum OrderStatus {
+  PAID
+  PENDING
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REPORTED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  company   String?
+  location  String?
+  timezone  String   @default("UTC")
+  language  String   @default("en")
+  role      UserRole @default(CUSTOMER)
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  preferences       UserPreferences?
+  orders            Order[]
+  purchases         Purchase[]
+  licenses          License[]
+  notifications     Notification[]
+  supportTickets    SupportTicket[]
+  reviews           Review[]
+  downloadEvents    DownloadEvent[]
+  auditLogs         AuditLog[]       @relation("AuditActor")
+}
+
+model UserPreferences {
+  userId          String  @id
+  productUpdates  Boolean @default(true)
+  orderReceipts   Boolean @default(true)
+  downloadAlerts  Boolean @default(true)
+  marketing       Boolean @default(false)
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  slug           String    @id
+  name           String
+  short          String
+  description    String
+  tint           String
+  preview        String
+  seoTitle       String?
+  seoDescription String?
+  status         String    @default("active")
+  products       Product[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Product {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  name           String
+  tagline        String
+  summary        String
+  description    Json
+  categorySlug   String
+  category       Category      @relation(fields: [categorySlug], references: [slug])
+  price          Int
+  salePrice      Int?
+  currency       String        @default("USD")
+  status         ProductStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  isNew          Boolean       @default(false)
+  bestSeller     Boolean       @default(false)
+  version        String        @default("1.0.0")
+  rating         Float         @default(0)
+  reviewCount    Int           @default(0)
+  sales          Int           @default(0)
+  downloads      Int           @default(0)
+  revenue        Int           @default(0)
+  tech           String[]
+  tags           String[]
+  features       Json          @default("[]")
+  included       String[]
+  requirements   String[]
+  pages          Int           @default(0)
+  preview        String
+  tint           String
+  screens        Json          @default("[]")
+  licenseIds     LicenseType[]
+  demoUrl        String?
+  docsUrl        String?
+  seoTitle       String?
+  seoDescription String?
+  releasedAt     DateTime      @default(now())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  reviews    Review[]
+  purchases  Purchase[]
+  orderLines OrderLine[]
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  label       String
+  percent     Int
+  active      Boolean   @default(true)
+  usageCount  Int       @default(0)
+  usageLimit  Int?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  reference           String      @unique
+  userId              String
+  user                User        @relation(fields: [userId], references: [id])
+  status              OrderStatus @default(PENDING)
+  subtotal            Int
+  discount            Int         @default(0)
+  discountCode        String?
+  tax                 Int         @default(0)
+  total               Int
+  paymentMethodLabel  String?
+  invoiceNumber       String?
+  stripeSessionId     String?     @unique
+  stripePaymentIntent String?
+  placedAt            DateTime    @default(now())
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  lines     OrderLine[]
+  purchases Purchase[]
+  licenses  License[]
+}
+
+model OrderLine {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product     @relation(fields: [productId], references: [id])
+  license   LicenseType
+  quantity  Int         @default(1)
+  unitPrice Int
+}
+
+model Purchase {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  productId       String
+  product         Product     @relation(fields: [productId], references: [id])
+  orderId         String
+  order           Order       @relation(fields: [orderId], references: [id])
+  license         LicenseType
+  pricePaid       Int
+  ownedVersion    String
+  purchasedAt     DateTime    @default(now())
+  lastDownloadedAt DateTime?
+  archived        Boolean     @default(false)
+}
+
+model License {
+  id            String      @id @default(cuid())
+  reference     String      @unique
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  productId     String
+  orderId       String
+  order         Order       @relation(fields: [orderId], references: [id])
+  type          LicenseType
+  status        String      @default("active")
+  purchasedAt   DateTime    @default(now())
+  updatesUntil  DateTime
+  seats         Int         @default(1)
+  ownedVersion  String
+}
+
+model Review {
+  id        String       @id @default(cuid())
+  productId String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?        @relation(fields: [userId], references: [id])
+  author    String
+  role      String
+  rating    Int
+  title     String
+  body      String
+  status    ReviewStatus @default(PENDING)
+  reported  Boolean      @default(false)
+  createdAt DateTime     @default(now())
+}
+
+model Notification {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category String
+  title    String
+  body     String
+  read     Boolean  @default(false)
+  dismissed Boolean @default(false)
+  at       DateTime @default(now())
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  reference String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  category  String
+  subject   String
+  message   String
+  status    String   @default("open")
+  productId String?
+  orderId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DownloadEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  purchaseId String?
+  version   String
+  fileLabel String
+  status    String   @default("completed")
+  at        DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation("AuditActor", fields: [actorId], references: [id])
+  action    String
+  resource  String
+  detail    String
+  at        DateTime @default(now())
+}
+
+model StoreSettings {
+  id        String   @id @default("default")
+  data      Json
+  updatedAt DateTime @updatedAt
+}
