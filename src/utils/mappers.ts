@@ -11,6 +11,7 @@ import type {
   User,
   UserPreferences,
 } from "@prisma/client";
+import { defaultDeliveryFiles, parseDeliveryFiles } from "../lib/delivery-files.js";
 
 type ProductWithReviews = Product & { reviews?: Review[] };
 
@@ -110,29 +111,58 @@ export const mappers = {
     };
   },
 
-  orderLine(l: OrderLine) {
+  orderLine(l: OrderLine & { product?: Product }) {
     return {
       productId: l.productId,
       license: licenseTypeToId(l.license),
       quantity: l.quantity,
       unitPrice: l.unitPrice,
+      version: l.product?.version ?? "1.0.0",
     };
   },
 
-  order(o: Order & { lines: OrderLine[] }) {
+  order(o: Order & { lines: (OrderLine & { product?: Product })[] }) {
+    const status = orderStatusToApi(o.status);
+    const paymentStatus =
+      status === "paid"
+        ? "succeeded"
+        : status === "failed"
+          ? "failed"
+          : status === "refunded"
+            ? "refunded"
+            : "pending";
+
     return {
       id: o.id,
       reference: o.reference,
       placedAt: o.placedAt.toISOString(),
-      status: orderStatusToApi(o.status),
+      status,
+      paymentStatus,
       lines: o.lines.map(mappers.orderLine),
       subtotal: o.subtotal,
       discount: o.discount,
       discountCode: o.discountCode ?? undefined,
+      couponCode: o.discountCode ?? undefined,
       tax: o.tax,
       total: o.total,
+      currency: "USD" as const,
       paymentMethodLabel: o.paymentMethodLabel ?? "Card",
+      paymentLabel: o.paymentMethodLabel ?? "Card",
       invoiceNumber: o.invoiceNumber ?? `INV-${o.reference}`,
+    };
+  },
+
+  adminOrder(o: Order & { userId: string; lines: (OrderLine & { product?: Product })[] }) {
+    return {
+      ...mappers.order(o),
+      customerId: o.userId,
+      events: [
+        {
+          at: o.placedAt.toISOString(),
+          label: "Order placed",
+          detail: orderStatusToApi(o.status),
+        },
+      ],
     };
   },
 
@@ -167,6 +197,25 @@ export const mappers = {
 
   adminProduct(p: Product) {
     const desc = Array.isArray(p.description) ? (p.description as string[]) : [];
+    const deliveryFiles = parseDeliveryFiles(p.deliveryFiles);
+    const files =
+      deliveryFiles.length > 0
+        ? deliveryFiles.map((f) => ({
+            id: f.id,
+            group: f.group,
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            status: f.status,
+          }))
+        : defaultDeliveryFiles(p.slug, p.version).map((f) => ({
+            id: f.id,
+            group: f.group,
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            status: "missing" as const,
+          }));
     return {
       id: p.id,
       slug: p.slug,
@@ -201,7 +250,7 @@ export const mappers = {
       preview: p.preview,
       tint: p.tint,
       versions: [{ version: p.version, releasedAt: p.releasedAt.toISOString().slice(0, 10), changelog: "Initial release", current: true }],
-      files: [],
+      files,
       attention: p.status === "DRAFT" ? ["Draft — not visible in catalog"] : [],
     };
   },

@@ -50,8 +50,8 @@ adminRouter.get("/tags", async (_req, res, next) => {
     }
     res.json(
       [...counts.entries()]
-        .map(([name, count]) => ({ name, count, status: "active" }))
-        .sort((a, b) => b.count - a.count),
+        .map(([name, usage]) => ({ name, usage, status: "active" }))
+        .sort((a, b) => b.usage - a.usage),
     );
   } catch (err) {
     next(err);

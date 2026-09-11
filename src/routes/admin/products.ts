@@ -1,6 +1,7 @@
 import type { Prisma, ProductStatus } from "@prisma/client";
 import { Router } from "express";
 import { z } from "zod";
+import { defaultDeliveryFiles } from "../../lib/delivery-files.js";
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/error.js";
 import { mappers } from "../../utils/mappers.js";
@@ -55,7 +56,10 @@ productsRouter.post("/", async (req, res, next) => {
   try {
     const input = draftSchema.parse(req.body);
     const product = await prisma.product.create({
-      data: toCreateInput(input),
+      data: {
+        ...toCreateInput(input),
+        deliveryFiles: defaultDeliveryFiles(input.slug, input.version),
+      },
     });
     res.status(201).json(mappers.adminProduct(product));
   } catch (err) {
@@ -73,6 +77,21 @@ productsRouter.patch("/:id", async (req, res, next) => {
       data: toUpdateInput(input),
     });
     res.json(mappers.adminProduct(product));
+  } catch (err) {
+    next(err);
+  }
+});
+
+productsRouter.post("/:id/delivery-files", async (req, res, next) => {
+  try {
+    const product = await prisma.product.findUnique({ where: { id: req.params.id } });
+    if (!product) throw new HttpError(404, "Product not found");
+    const deliveryFiles = defaultDeliveryFiles(product.slug, product.version);
+    const updated = await prisma.product.update({
+      where: { id: product.id },
+      data: { deliveryFiles },
+    });
+    res.json(mappers.adminProduct(updated));
   } catch (err) {
     next(err);
   }

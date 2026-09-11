@@ -129,6 +129,7 @@ model Product {
   docsUrl        String?
   seoTitle       String?
   seoDescription String?
+  deliveryFiles  Json          @default("[]")
   releasedAt     DateTime      @default(now())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt

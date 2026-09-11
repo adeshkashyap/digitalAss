@@ -5,7 +5,7 @@ import { prisma } from "./lib/prisma.js";
 
 const app = createApp();
 const server = app.listen(config.PORT, () => {
-  logger.info({ port: config.PORT }, "DevAssets API listening");
+  logger.info({ port: config.PORT }, "ApnaCodex API listening");
 });
 
 const shutdown = async (signal: string) => {

@@ -13,6 +13,7 @@ const schema = z.object({
   STRIPE_SUCCESS_URL: z.string().default("http://localhost:3000/account/purchases"),
   STRIPE_CANCEL_URL: z.string().default("http://localhost:3000/cart"),
   APP_URL: z.string().default("http://localhost:4000"),
+  GCS_BUCKET: z.string().optional(),
 });
 
 export const config = schema.parse(process.env);

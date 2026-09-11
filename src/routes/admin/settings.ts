@@ -2,8 +2,8 @@ import { Router } from "express";
 import { prisma } from "../../lib/prisma.js";
 
 const defaultSettings = {
-  storeName: "DevAssets",
-  supportEmail: "support@devassets.example",
+  storeName: "ApnaCodex",
+  supportEmail: "support@apnacodex.com",
   currency: "USD",
   taxRate: 0,
   maintenanceMode: false,

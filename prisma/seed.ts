@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { defaultDeliveryFiles } from "../src/lib/delivery-files.js";
 import { catalogProducts } from "./catalog-seed.js";
 
 const prisma = new PrismaClient();
@@ -68,6 +69,7 @@ async function main() {
         screens: [{ label: "Preview", kind: p.preview }],
         licenseIds: ["PERSONAL", "COMMERCIAL", "AGENCY"],
         releasedAt: new Date(p.releasedAt),
+        deliveryFiles: defaultDeliveryFiles(p.slug, p.version),
       },
     });
   }
@@ -76,7 +78,7 @@ async function main() {
 
   const customer = await prisma.user.create({
     data: {
-      email: "demo@devassets.example",
+      email: "demo@apnacodex.com",
       name: "Alex Morgan",
       password,
       company: "Northline Studio",
@@ -88,7 +90,7 @@ async function main() {
 
   await prisma.user.create({
     data: {
-      email: "admin@devassets.example",
+      email: "admin@apnacodex.com",
       name: "Sam Rivera",
       password,
       role: "SUPER_ADMIN",
@@ -104,9 +106,9 @@ async function main() {
     data: {
       id: "default",
       data: {
-        storeName: "DevAssets",
+        storeName: "ApnaCodex",
         tagline: "Production-ready templates",
-        supportEmail: "support@devassets.example",
+        supportEmail: "support@apnacodex.com",
         description: "Premium React templates for real products.",
         currency: "USD",
         taxNote: "Tax calculated at checkout where applicable.",
@@ -170,15 +172,15 @@ async function main() {
       data: {
         userId: customer.id,
         category: "purchases",
-        title: "Welcome to DevAssets",
+        title: "Welcome to ApnaCodex",
         body: "Your demo account is ready. Explore your purchases and downloads.",
       },
     });
   }
 
   console.log("Seed complete — 13 products, demo customer + admin");
-  console.log("  Customer: demo@devassets.example / password123");
-  console.log("  Admin:    admin@devassets.example / password123");
+  console.log("  Customer: demo@apnacodex.com / password123");
+  console.log("  Admin:    admin@apnacodex.com / password123");
 }
 
 main()

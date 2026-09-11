@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { z } from "zod";
+import {
+  customerDownloadFiles,
+  defaultDeliveryFiles,
+  parseDeliveryFiles,
+} from "../lib/delivery-files.js";
 import { prisma } from "../lib/prisma.js";
+import { getSignedDownloadUrl } from "../lib/storage.js";
 import { requireAuth } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
 import { mappers } from "../utils/mappers.js";
@@ -129,6 +135,11 @@ meRouter.get("/downloads", async (req, res, next) => {
 
     const items = purchases.map((p) => {
       const latestVersion = p.product.version;
+      const deliveryFiles = parseDeliveryFiles(p.product.deliveryFiles);
+      const records =
+        deliveryFiles.length > 0
+          ? deliveryFiles
+          : defaultDeliveryFiles(p.product.slug, latestVersion);
       return {
         purchaseId: p.id,
         productId: p.productId,
@@ -137,7 +148,7 @@ meRouter.get("/downloads", async (req, res, next) => {
         ownedVersion: p.ownedVersion,
         updateAvailable: latestVersion !== p.ownedVersion,
         lastDownloadedAt: p.lastDownloadedAt?.toISOString(),
-        files: filesFor(p.product.slug, latestVersion, p.license !== "PERSONAL"),
+        files: customerDownloadFiles(records, latestVersion, p.license !== "PERSONAL"),
       };
     });
     res.json(items);
@@ -156,7 +167,13 @@ meRouter.post("/downloads/:purchaseId", async (req, res, next) => {
 
     const fileLabel = String(req.body?.fileLabel ?? "Source archive");
     const version = String(req.body?.version ?? purchase.product.version);
+    const objectPath = req.body?.objectPath ? String(req.body.objectPath) : undefined;
     const now = new Date();
+
+    let downloadUrl: string | null = null;
+    if (objectPath) {
+      downloadUrl = await getSignedDownloadUrl(objectPath);
+    }
 
     const event = await prisma.downloadEvent.create({
       data: {
@@ -165,15 +182,21 @@ meRouter.post("/downloads/:purchaseId", async (req, res, next) => {
         purchaseId: purchase.id,
         version,
         fileLabel,
-        status: "completed",
+        status: downloadUrl ? "completed" : "failed",
         at: now,
       },
     });
 
-    await prisma.purchase.update({
-      where: { id: purchase.id },
-      data: { lastDownloadedAt: now, ownedVersion: version },
-    });
+    if (downloadUrl) {
+      await prisma.purchase.update({
+        where: { id: purchase.id },
+        data: { lastDownloadedAt: now, ownedVersion: version },
+      });
+      await prisma.product.update({
+        where: { id: purchase.productId },
+        data: { downloads: { increment: 1 } },
+      });
+    }
 
     res.json({
       id: event.id,
@@ -182,6 +205,7 @@ meRouter.post("/downloads/:purchaseId", async (req, res, next) => {
       version: event.version,
       fileLabel: event.fileLabel,
       status: event.status,
+      downloadUrl,
     });
   } catch (err) {
     next(err);
@@ -267,22 +291,3 @@ meRouter.delete("/notifications/:id", async (req, res, next) => {
   }
 });
 
-function filesFor(slug: string, version: string, includeAssets: boolean) {
-  const base = [
-    { id: `${slug}-src`, kind: "source", label: "Source archive", fileName: `${slug}-v${version}.zip`, fileType: "ZIP", size: "24.6 MB", version },
-    { id: `${slug}-docs`, kind: "docs", label: "Documentation", fileName: `${slug}-docs.pdf`, fileType: "PDF", size: "2.1 MB", version },
-    { id: `${slug}-changelog`, kind: "changelog", label: "Changelog", fileName: "CHANGELOG.md", fileType: "Markdown", size: "12 KB", version },
-  ];
-  if (includeAssets) {
-    base.push({
-      id: `${slug}-assets`,
-      kind: "assets",
-      label: "Design assets",
-      fileName: `${slug}-assets.zip`,
-      fileType: "ZIP",
-      size: "48.3 MB",
-      version,
-    });
-  }
-  return base;
-}
