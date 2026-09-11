@@ -14,6 +14,8 @@ const schema = z.object({
   STRIPE_CANCEL_URL: z.string().default("http://localhost:3000/cart"),
   APP_URL: z.string().default("http://localhost:4000"),
   GCS_BUCKET: z.string().optional(),
+  /** Service account email for signing GCS URLs (auto-detected on Cloud Run). */
+  GCS_SIGNING_SERVICE_ACCOUNT: z.string().optional(),
 });
 
 export const config = schema.parse(process.env);
