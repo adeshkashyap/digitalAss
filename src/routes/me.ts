@@ -1,17 +1,74 @@
+import type { Request } from "express";
 import { Router } from "express";
+import jwt from "jsonwebtoken";
 import { z } from "zod";
 import {
   customerDownloadFiles,
   defaultDeliveryFiles,
   parseDeliveryFiles,
 } from "../lib/delivery-files.js";
+import { config } from "../lib/config.js";
 import { prisma } from "../lib/prisma.js";
-import { getSignedDownloadUrl } from "../lib/storage.js";
+import { objectExists, openObjectStream } from "../lib/storage.js";
 import { requireAuth } from "../middleware/auth.js";
 import { HttpError } from "../middleware/error.js";
 import { mappers } from "../utils/mappers.js";
 
 export const meRouter = Router();
+
+function apiBaseUrl(req: Request) {
+  if (config.APP_URL && !config.APP_URL.includes("localhost")) {
+    return config.APP_URL.replace(/\/$/, "");
+  }
+  const proto = req.get("x-forwarded-proto") ?? req.protocol;
+  const host = req.get("x-forwarded-host") ?? req.get("host");
+  return `${proto}://${host}`;
+}
+
+function createDownloadToken(payload: {
+  purchaseId: string;
+  objectPath: string;
+  userId: string;
+}) {
+  return jwt.sign(payload, config.JWT_SECRET, { expiresIn: "5m" });
+}
+
+/** Stream a purchased file using a short-lived JWT (no GCS signBlob required). */
+meRouter.get("/downloads/:purchaseId/file", async (req, res, next) => {
+  try {
+    const token = String(req.query.token ?? "");
+    if (!token) throw new HttpError(401, "Missing download token");
+
+    const payload = jwt.verify(token, config.JWT_SECRET) as {
+      purchaseId: string;
+      objectPath: string;
+      userId: string;
+    };
+
+    if (payload.purchaseId !== req.params.purchaseId) {
+      throw new HttpError(403, "Invalid download token");
+    }
+
+    const purchase = await prisma.purchase.findFirst({
+      where: { id: payload.purchaseId, userId: payload.userId },
+    });
+    if (!purchase) throw new HttpError(404, "Purchase not found");
+
+    const file = await openObjectStream(payload.objectPath);
+    if (!file) throw new HttpError(404, "File not found in storage");
+
+    res.setHeader("Content-Type", file.contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${file.fileName}"`);
+    file.stream.pipe(res);
+  } catch (err) {
+    if (err instanceof jwt.JsonWebTokenError) {
+      next(new HttpError(401, "Download link expired or invalid"));
+      return;
+    }
+    next(err);
+  }
+});
+
 meRouter.use(requireAuth);
 
 meRouter.get("/", async (req, res, next) => {
@@ -170,10 +227,17 @@ meRouter.post("/downloads/:purchaseId", async (req, res, next) => {
     const objectPath = req.body?.objectPath ? String(req.body.objectPath) : undefined;
     const now = new Date();
 
-    let downloadUrl: string | null = null;
-    if (objectPath) {
-      downloadUrl = await getSignedDownloadUrl(objectPath);
-    }
+    const fileReady = objectPath ? await objectExists(objectPath) : false;
+    const downloadUrl =
+      fileReady && objectPath
+        ? `${apiBaseUrl(req)}/api/me/downloads/${purchase.id}/file?token=${encodeURIComponent(
+            createDownloadToken({
+              purchaseId: purchase.id,
+              objectPath,
+              userId: req.user!.id,
+            }),
+          )}`
+        : null;
 
     const event = await prisma.downloadEvent.create({
       data: {
