@@ -58,4 +58,4 @@ jobs:
             --min-instances=0 \
             --max-instances=10 \
             --set-secrets=DATABASE_URL=devassets-database-url:latest,JWT_SECRET=devassets-jwt-secret:latest \
-            --set-env-vars="NODE_ENV=production,CORS_ORIGIN=${CORS_ORIGIN}"
+            --set-env-vars=^@^NODE_ENV=production@CORS_ORIGIN=${CORS_ORIGIN}
