@@ -16,6 +16,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/features/auth/auth-provider";
 import { StoreProvider } from "@/features/store/store-provider";
 import { ThemeProvider } from "@/features/theme/theme-provider";
 
@@ -139,6 +140,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        <AuthProvider>
         <StoreProvider>
           {ownShell ? (
             <Outlet />
@@ -154,6 +156,7 @@ function RootComponent() {
           )}
           <Toaster position="bottom-right" />
         </StoreProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

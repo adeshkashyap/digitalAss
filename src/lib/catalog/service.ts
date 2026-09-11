@@ -1,96 +1,84 @@
 /**
- * Catalog service boundary.
- *
- * Today these functions resolve against the local mock data. When the
- * Node/Express + Prisma API lands, replace the bodies with `fetch` calls —
- * signatures and return types stay identical, so no component changes.
+ * Catalog service boundary — backed by the DevAssets REST API.
  */
-import { categories, categoryBySlug } from "./categories";
-import { productBySlug, products } from "./products";
-import type { CatalogQuery, CatalogResult, Category, Product, SortKey } from "./types";
+import { ApiError, api } from "@/lib/api/client";
+import type { CatalogQuery, CatalogResult, Category, Product } from "./types";
 
 export const effectivePrice = (p: Product) => p.salePrice ?? p.price;
 
 export const discountPercent = (p: Product) =>
   p.salePrice ? Math.round((1 - p.salePrice / p.price) * 100) : 0;
 
-const sorters: Record<SortKey, (a: Product, b: Product) => number> = {
-  featured: (a, b) =>
-    Number(b.featured) - Number(a.featured) || b.sales - a.sales || b.rating - a.rating,
-  newest: (a, b) => b.releasedAt.localeCompare(a.releasedAt),
-  rating: (a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount,
-  "price-asc": (a, b) => effectivePrice(a) - effectivePrice(b),
-  "price-desc": (a, b) => effectivePrice(b) - effectivePrice(a),
-};
-
-export function queryProducts(query: CatalogQuery = {}): CatalogResult {
-  const {
-    search = "",
-    categories: cats = [],
-    tech = [],
-    features = [],
-    minRating = 0,
-    maxPrice,
-    sort = "featured",
-    page = 1,
-    perPage = 9,
-  } = query;
-
-  const term = search.trim().toLowerCase();
-
-  const filtered = products.filter((p) => {
-    if (cats.length && !cats.includes(p.categorySlug)) return false;
-    if (tech.length && !tech.every((t) => p.tech.includes(t))) return false;
-    if (features.length && !features.every((f) => p.tags.includes(f))) return false;
-    if (p.rating < minRating) return false;
-    if (typeof maxPrice === "number" && effectivePrice(p) > maxPrice) return false;
-    if (!term) return true;
-    return [p.name, p.tagline, p.summary, ...p.tags, ...p.tech]
-      .join(" ")
-      .toLowerCase()
-      .includes(term);
-  });
-
-  const sorted = [...filtered].sort(sorters[sort]);
-  const start = (page - 1) * perPage;
-
-  return {
-    items: sorted.slice(0, start + perPage),
-    total: sorted.length,
-    page,
-    perPage,
-  };
+function toParams(query: CatalogQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.search) params.set("search", query.search);
+  if (query.categories?.length) params.set("categories", query.categories.join(","));
+  if (query.tech?.length) params.set("tech", query.tech.join(","));
+  if (query.features?.length) params.set("features", query.features.join(","));
+  if (query.minRating) params.set("minRating", String(query.minRating));
+  if (typeof query.maxPrice === "number") params.set("maxPrice", String(query.maxPrice));
+  if (query.sort) params.set("sort", query.sort);
+  if (query.page) params.set("page", String(query.page));
+  if (query.perPage) params.set("perPage", String(query.perPage));
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
 }
 
-export const getFeaturedProducts = (limit = 6) =>
-  [...products].sort(sorters.featured).slice(0, limit);
+export async function queryProducts(query: CatalogQuery = {}): Promise<CatalogResult> {
+  return api.get<CatalogResult>(`/api/products${toParams(query)}`);
+}
 
-export const getNewProducts = (limit = 3) => [...products].sort(sorters.newest).slice(0, limit);
+export async function getFeaturedProducts(limit = 6): Promise<Product[]> {
+  return api.get<Product[]>(`/api/products/featured?limit=${limit}`);
+}
 
-export const getProduct = (slug: string): Product | undefined => productBySlug(slug);
+export async function getNewProducts(limit = 3): Promise<Product[]> {
+  return api.get<Product[]>(`/api/products/new?limit=${limit}`);
+}
 
-export const getCategories = (): Category[] => categories;
+export async function getProduct(slug: string): Promise<Product | undefined> {
+  try {
+    return await api.get<Product>(`/api/products/${slug}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
+}
 
-export const getCategory = (slug: string): Category | undefined => categoryBySlug(slug);
+export async function getProductById(id: string): Promise<Product | undefined> {
+  try {
+    return await api.get<Product>(`/api/products/id/${id}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
+}
 
-export const getProductsByCategory = (slug: string) =>
-  [...products].filter((p) => p.categorySlug === slug).sort(sorters.featured);
+export async function getCategories(): Promise<Category[]> {
+  return api.get<Category[]>("/api/categories");
+}
 
-export const getRelatedProducts = (product: Product, limit = 3) =>
-  [...products]
-    .filter((p) => p.id !== product.id)
-    .sort((a, b) => {
-      const score = (p: Product) =>
-        (p.categorySlug === product.categorySlug ? 10 : 0) +
-        p.tech.filter((t) => product.tech.includes(t)).length;
-      return score(b) - score(a) || b.rating - a.rating;
-    })
-    .slice(0, limit);
+export async function getCategory(slug: string): Promise<Category | undefined> {
+  try {
+    return await api.get<Category>(`/api/categories/${slug}`);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return undefined;
+    throw error;
+  }
+}
 
-export const categoryCounts = () =>
-  Object.fromEntries(
-    categories.map((c) => [c.slug, products.filter((p) => p.categorySlug === c.slug).length]),
-  ) as Record<string, number>;
+export async function getProductsByCategory(slug: string): Promise<Product[]> {
+  return api.get<Product[]>(`/api/categories/${slug}/products`);
+}
+
+export async function getRelatedProducts(product: Product, limit = 3): Promise<Product[]> {
+  return api.get<Product[]>(`/api/products/${product.slug}/related?limit=${limit}`);
+}
+
+export async function categoryCounts(): Promise<Record<string, number>> {
+  const cats = await getCategories();
+  return Object.fromEntries(cats.map((c) => [c.slug, c.count]));
+}
 
 export const formatPrice = (value: number) =>
   new Intl.NumberFormat("en-US", {

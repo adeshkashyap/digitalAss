@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AuthLayout, SocialButtons } from "@/features/auth/auth-layout";
+import { useAuth } from "@/features/auth/auth-provider";
+import { ApiError } from "@/lib/api/client";
 
 const title = "Sign in — DevAssets";
 const description =
@@ -46,17 +48,22 @@ const schema = z.object({
 
 function LoginPage() {
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { email: "", password: "", remember: true },
     mode: "onBlur",
   });
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 900));
-    toast.info("Accounts arrive in the next phase", {
-      description: "Your details validated correctly — sign-in activates with the accounts API.",
-    });
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    try {
+      await login(values.email, values.password);
+      toast.success("Welcome back");
+      navigate({ to: "/account" });
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.message : "Sign in failed");
+    }
   };
 
   const submitting = form.formState.isSubmitting;

@@ -71,7 +71,9 @@ function AccountOverview() {
   const entries = active
     .map((purchase) => {
       const product = productById(purchase.productId);
-      return product ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase) } : null;
+      return product
+        ? { purchase, product, updateAvailable: purchaseHasUpdate(purchase, product.version) }
+        : null;
     })
     .filter((e): e is NonNullable<typeof e> => e !== null);
 

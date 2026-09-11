@@ -1,12 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { categories } from "@/lib/catalog/categories";
 import { allTags, allTech } from "@/lib/catalog/products";
-import { categoryCounts, formatPrice } from "@/lib/catalog/service";
+import { categoriesQuery } from "@/lib/catalog/queries";
+import { formatPrice } from "@/lib/catalog/service";
 import { cn } from "@/lib/utils";
 
 export interface CatalogFilters {
@@ -36,7 +37,6 @@ export const activeFilterCount = (f: CatalogFilters) =>
   (f.minRating > 0 ? 1 : 0) +
   (f.maxPrice < MAX_PRICE ? 1 : 0);
 
-const counts = categoryCounts();
 const featureOptions = allTags.filter((t) =>
   [
     "dark mode",
@@ -110,6 +110,9 @@ export function FilterPanel({
   onReset: () => void;
   className?: string;
 }) {
+  const { data: categories = [] } = useQuery(categoriesQuery());
+  const counts = Object.fromEntries(categories.map((c) => [c.slug, c.count]));
+
   const set = <K extends keyof CatalogFilters>(key: K, value: CatalogFilters[K]) =>
     onChange({ ...filters, [key]: value });
 

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
@@ -41,6 +41,8 @@ import {
 } from "@/components/ui/select";
 import { PageHero } from "@/features/catalog/page-hero";
 import { type CartLine, useStore } from "@/features/store/store-provider";
+import { api, ApiError } from "@/lib/api/client";
+import { getAuthToken } from "@/lib/api/auth-storage";
 import { formatPrice } from "@/lib/catalog/service";
 import { cn } from "@/lib/utils";
 
@@ -140,6 +142,7 @@ function CheckoutProgress({ step }: { step: "cart" | "details" | "payment" }) {
 }
 
 function CheckoutPage() {
+  const navigate = useNavigate();
   const store = useStore();
   const { lines, subtotal, discount, discountCode, total, hydrated } = store;
   const [code, setCode] = useState("");
@@ -167,16 +170,31 @@ function CheckoutPage() {
   const grandTotal = total + vat;
 
   const onSubmit = async () => {
-    // Payment is intentionally not implemented in this phase. When Stripe is
-    // wired up, this handler creates a PaymentIntent server-side and confirms it.
     setError(null);
-    await new Promise((r) => setTimeout(r, 1200));
-    setError(
-      "Payment isn't connected yet. This checkout collects and validates order details so the payment step can be added without changing this screen.",
-    );
-    toast.info("Order details validated", {
-      description: "Card payment activates when the payment provider is connected.",
-    });
+    if (!getAuthToken()) {
+      toast.error("Sign in to complete checkout");
+      navigate({ to: "/login" });
+      return;
+    }
+    try {
+      const session = await api.post<{ url: string | null }>("/api/checkout/session", {
+        lines: lines.map((line) => ({
+          productId: line.productId,
+          license: line.license,
+          quantity: line.quantity,
+        })),
+        discountCode: discountCode ?? undefined,
+      });
+      if (session.url) {
+        window.location.href = session.url;
+        return;
+      }
+      setError("Stripe checkout could not be started. Check API keys in backend .env.");
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Checkout failed";
+      setError(message);
+      toast.error(message);
+    }
   };
 
   const submitting = form.formState.isSubmitting;
@@ -416,11 +434,10 @@ function CheckoutPage() {
                     <CreditCard className="h-4 w-4" aria-hidden />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">Card payment — coming in the next phase</p>
+                    <p className="text-sm font-medium">Secure payment via Stripe Checkout</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                      Card details will be entered in a hosted payment field, so no card data ever
-                      touches DevAssets. This screen already collects everything the payment step
-                      needs.
+                      You will be redirected to Stripe to enter card details. No card data is stored
+                      on DevAssets servers.
                     </p>
                   </div>
                 </div>
@@ -457,7 +474,7 @@ function CheckoutPage() {
               {error && (
                 <Alert variant="destructive" className="mt-5">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Payment not available yet</AlertTitle>
+                  <AlertTitle>Checkout could not continue</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}

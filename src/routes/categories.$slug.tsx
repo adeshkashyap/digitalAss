@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
@@ -5,13 +6,15 @@ import { EmptyState } from "@/components/marketplace/empty-state";
 import { ProductGrid } from "@/components/marketplace/product-grid";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/features/catalog/page-hero";
-import { getCategories, getCategory, getProductsByCategory } from "@/lib/catalog/service";
+import { categoriesQuery, categoryProductsQuery } from "@/lib/catalog/queries";
+import { getCategory } from "@/lib/catalog/service";
 
 export const Route = createFileRoute("/categories/$slug")({
-  loader: ({ params }) => {
-    const category = getCategory(params.slug);
+  loader: async ({ params, context }) => {
+    const category = await getCategory(params.slug);
     if (!category) throw notFound();
-    return { category, products: getProductsByCategory(params.slug) };
+    const products = await context.queryClient.ensureQueryData(categoryProductsQuery(params.slug));
+    return { category, products };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -38,7 +41,8 @@ export const Route = createFileRoute("/categories/$slug")({
 
 function CategoryListing() {
   const { category, products } = Route.useLoaderData();
-  const siblings = getCategories().filter((c) => c.slug !== category.slug);
+  const { data: allCategories = [] } = useQuery(categoriesQuery());
+  const siblings = allCategories.filter((c) => c.slug !== category.slug);
 
   return (
     <>
@@ -49,16 +53,8 @@ function CategoryListing() {
           { label: category.name },
         ]}
         eyebrow={category.short}
-        title={`${category.name} templates`}
+        title={category.name}
         description={category.description}
-        aside={
-          <div className="rounded-lg border border-border bg-surface/60 px-4 py-3">
-            <p className="font-display text-2xl font-semibold tracking-tight">{products.length}</p>
-            <p className="text-xs text-muted-foreground">
-              {products.length === 1 ? "template" : "templates"} available
-            </p>
-          </div>
-        }
       />
 
       <div className="shell py-12 lg:py-16">
@@ -66,32 +62,32 @@ function CategoryListing() {
           <ProductGrid products={products} />
         ) : (
           <EmptyState
-            title={`No ${category.name.toLowerCase()} templates yet`}
-            description="This category is in production. Browse the full marketplace in the meantime — several templates cover adjacent use cases."
+            title="No templates in this category yet"
+            description="Check back soon or browse the full catalog."
             action={
-              <Button asChild variant="brand">
+              <Button asChild variant="hero">
                 <Link to="/templates">Browse all templates</Link>
               </Button>
             }
           />
         )}
 
-        <div className="mt-16 border-t border-border pt-10">
-          <h2 className="font-display text-lg font-semibold tracking-tight">Other categories</h2>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {siblings.map((c) => (
-              <Link
-                key={c.slug}
-                to="/categories/$slug"
-                params={{ slug: c.slug }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
-              >
-                {c.name}
-                <ArrowRight className="h-3 w-3" aria-hidden />
-              </Link>
-            ))}
+        {siblings.length > 0 && (
+          <div className="mt-16 border-t border-border pt-10">
+            <h2 className="font-display text-lg font-semibold">Other categories</h2>
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {siblings.map((c) => (
+                <li key={c.slug}>
+                  <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <Link to="/categories/$slug" params={{ slug: c.slug }}>
+                      {c.name} <ArrowRight />
+                    </Link>
+                  </Button>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -24,12 +25,7 @@ import { Button } from "@/components/ui/button";
 import { homeFaqs, principles, techStrip, testimonials } from "@/lib/catalog/content";
 import { licenses } from "@/lib/catalog/licenses";
 import { productBySlug } from "@/lib/catalog/products";
-import {
-  categoryCounts,
-  getCategories,
-  getFeaturedProducts,
-  getProductsByCategory,
-} from "@/lib/catalog/service";
+import { categoriesQuery, categoryProductsQuery, featuredProductsQuery } from "@/lib/catalog/queries";
 
 const icons = [FileCode2, Boxes, MonitorSmartphone, RefreshCw];
 
@@ -59,7 +55,7 @@ export function TechStrip() {
 }
 
 export function FeaturedTemplates() {
-  const featured = getFeaturedProducts(6);
+  const { data: featured = [] } = useQuery(featuredProductsQuery(6));
   return (
     <section className="shell section-padding">
       <SectionHeader
@@ -80,7 +76,7 @@ export function FeaturedTemplates() {
 }
 
 export function CategoryGrid() {
-  const counts = categoryCounts();
+  const { data: categories = [] } = useQuery(categoriesQuery());
   return (
     <section className="section-padding border-y border-border bg-surface/30">
       <div className="shell">
@@ -97,8 +93,8 @@ export function CategoryGrid() {
           }
         />
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {getCategories().map((c) => (
-            <CategoryCard key={c.slug} category={c} count={counts[c.slug]} variant="compact" />
+          {categories.map((c) => (
+            <CategoryCard key={c.slug} category={c} count={c.count} variant="compact" />
           ))}
         </div>
       </div>
@@ -137,7 +133,8 @@ export function WhyDevAssets() {
 
 export function CuratedCollection() {
   const hero = productBySlug("nexus-saas");
-  const support = getProductsByCategory("admin-dashboards").slice(0, 2);
+  const supportQ = useQuery(categoryProductsQuery("admin-dashboards"));
+  const support = (supportQ.data ?? []).slice(0, 2);
   if (!hero) return null;
 
   return (

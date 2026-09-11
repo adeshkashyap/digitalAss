@@ -1,10 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
 import { CategoryCard } from "@/components/marketplace/category-card";
 import { Button } from "@/components/ui/button";
 import { PageHero } from "@/features/catalog/page-hero";
-import { categoryCounts, getCategories } from "@/lib/catalog/service";
+import { categoriesQuery } from "@/lib/catalog/queries";
 
 const title = "Template categories — DevAssets";
 const description =
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/categories/")({
 });
 
 function CategoriesPage() {
-  const counts = categoryCounts();
+  const { data: categories = [] } = useQuery(categoriesQuery());
 
   return (
     <>
@@ -44,9 +45,9 @@ function CategoriesPage() {
       />
 
       <div className="shell grid gap-5 py-12 sm:grid-cols-2 lg:grid-cols-3 lg:py-16">
-        {getCategories().map((c, i) => (
+        {categories.map((c, i) => (
           <div key={c.slug} className="reveal flex" style={{ animationDelay: `${i * 50}ms` }}>
-            <CategoryCard category={c} count={counts[c.slug]} className="w-full" />
+            <CategoryCard category={c} count={c.count} className="w-full" />
           </div>
         ))}
       </div>

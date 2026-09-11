@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LayoutGrid, Search, SlidersHorizontal, Sparkles, X } from "lucide-react";
-import { useMemo, useState, useTransition } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState, useTransition } from "react";
 
 import { EmptyState } from "@/components/marketplace/empty-state";
 import { ProductGrid } from "@/components/marketplace/product-grid";
@@ -28,8 +29,8 @@ import {
   searchToCatalogState,
 } from "@/features/catalog/search-params";
 import { PageHero } from "@/features/catalog/page-hero";
-import { categories } from "@/lib/catalog/categories";
-import { formatPrice, queryProducts } from "@/lib/catalog/service";
+import { catalogProductsQuery, categoriesQuery } from "@/lib/catalog/queries";
+import { formatPrice } from "@/lib/catalog/service";
 import type { SortKey } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
@@ -71,21 +72,21 @@ function CatalogPage() {
 
   const { filters, sort, page } = searchToCatalogState(search);
 
-  const result = useMemo(
-    () =>
-      queryProducts({
-        search: filters.search,
-        categories: filters.categories,
-        tech: filters.tech,
-        features: filters.features,
-        minRating: filters.minRating,
-        maxPrice: filters.maxPrice >= MAX_PRICE ? undefined : filters.maxPrice,
-        sort,
-        page,
-        perPage: PER_PAGE,
-      }),
-    [filters, sort, page],
+  const { data: result, isLoading, isFetching } = useQuery(
+    catalogProductsQuery({
+      search: filters.search,
+      categories: filters.categories,
+      tech: filters.tech,
+      features: filters.features,
+      minRating: filters.minRating,
+      maxPrice: filters.maxPrice >= MAX_PRICE ? undefined : filters.maxPrice,
+      sort,
+      page,
+      perPage: PER_PAGE,
+    }),
   );
+  const categoriesQ = useQuery(categoriesQuery());
+  const categories = categoriesQ.data ?? [];
 
   const pushState = (nextFilters: CatalogFilters, nextSort: SortKey, nextPage: number) => {
     startTransition(() => {
@@ -100,6 +101,8 @@ function CatalogPage() {
 
   const reset = () => pushState(defaultFilters, "featured", 1);
 
+  const catalog = result ?? { items: [], total: 0, page, perPage: PER_PAGE };
+  const loading = isLoading || isFetching || isPending;
   const activeCount = activeFilterCount(filters);
   const panelFilters = draftFilters ?? filters;
 
@@ -150,10 +153,10 @@ function CatalogPage() {
           <div className="min-w-40 rounded-lg border border-border bg-surface/70 px-4 py-3">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-brand" aria-hidden />
-              <p className="font-display text-2xl font-semibold">{result.total}</p>
+              <p className="font-display text-2xl font-semibold">{catalog.total}</p>
             </div>
             <p className="text-xs text-muted-foreground">
-              {result.total === 1 ? "template matches" : "templates match"}
+              {catalog.total === 1 ? "template matches" : "templates match"}
             </p>
           </div>
         }
@@ -324,15 +327,15 @@ function CatalogPage() {
           )}
 
           <p className="mt-6 text-xs text-muted-foreground" aria-live="polite">
-            Showing {result.items.length} of {result.total} templates
+            Showing {catalog.items.length} of {catalog.total} templates
           </p>
 
-          {isPending ? (
+          {loading ? (
             <ProductGridSkeleton count={6} />
-          ) : result.items.length > 0 ? (
+          ) : catalog.items.length > 0 ? (
             <>
-              <ProductGrid products={result.items} className="mt-5" />
-              {result.items.length < result.total && (
+              <ProductGrid products={catalog.items} className="mt-5" />
+              {catalog.items.length < catalog.total && (
                 <nav
                   className="mt-10 flex flex-col items-center gap-3"
                   aria-label="Catalog pagination"
@@ -346,7 +349,7 @@ function CatalogPage() {
                     <LayoutGrid /> Load more templates
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Page {page} · {result.total - result.items.length} more available
+                    Page {page} · {catalog.total - catalog.items.length} more available
                   </p>
                 </nav>
               )}

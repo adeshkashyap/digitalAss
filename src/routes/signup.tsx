@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AuthLayout, SocialButtons } from "@/features/auth/auth-layout";
+import { useAuth } from "@/features/auth/auth-provider";
+import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
 const title = "Create your DevAssets account";
@@ -60,6 +62,8 @@ const rules = [
 
 function SignupPage() {
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
+  const { register } = useAuth();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", password: "", terms: false },
@@ -68,11 +72,14 @@ function SignupPage() {
 
   const password = form.watch("password");
 
-  const onSubmit = async () => {
-    await new Promise((r) => setTimeout(r, 900));
-    toast.info("Accounts arrive in the next phase", {
-      description: "Everything validated — account creation activates with the accounts API.",
-    });
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    try {
+      await register(values.name, values.email, values.password);
+      toast.success("Account created");
+      navigate({ to: "/account" });
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.message : "Could not create account");
+    }
   };
 
   const submitting = form.formState.isSubmitting;

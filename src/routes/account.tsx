@@ -1,8 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { AccountShell } from "@/features/account/account-shell";
+import { getAuthToken } from "@/lib/api/auth-storage";
 
 export const Route = createFileRoute("/account")({
+  beforeLoad: () => {
+    if (!getAuthToken()) throw redirect({ to: "/login" });
+  },
   head: () => ({
     meta: [
       { title: "Your account — DevAssets" },

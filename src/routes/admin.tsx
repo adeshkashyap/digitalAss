@@ -1,8 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { AdminShell } from "@/features/admin/admin-shell";
+import { getAuthToken } from "@/lib/api/auth-storage";
 
 export const Route = createFileRoute("/admin")({
+  beforeLoad: () => {
+    if (!getAuthToken()) throw redirect({ to: "/login" });
+  },
   head: () => ({
     meta: [
       { title: "Back office — DevAssets" },

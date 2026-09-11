@@ -1,4 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   ArrowUpRight,
   BookOpen,
@@ -33,20 +35,15 @@ import { useStore } from "@/features/store/store-provider";
 import { categoryBySlug } from "@/lib/catalog/categories";
 import { productFaqs } from "@/lib/catalog/content";
 import { licenses } from "@/lib/catalog/licenses";
-import {
-  effectivePrice,
-  formatCompact,
-  formatDate,
-  formatPrice,
-  getProduct,
-  getRelatedProducts,
-} from "@/lib/catalog/service";
+import { productQuery, relatedProductsQuery } from "@/lib/catalog/queries";
+import { effectivePrice, formatCompact, formatDate, formatPrice } from "@/lib/catalog/service";
+import { trackRecentlyViewed } from "@/lib/account/service";
 import type { LicenseId } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/templates/$slug")({
-  loader: ({ params }) => {
-    const product = getProduct(params.slug);
+  loader: async ({ params, context }) => {
+    const product = await context.queryClient.ensureQueryData(productQuery(params.slug));
     if (!product) throw notFound();
     return { product };
   },
@@ -76,8 +73,13 @@ export const Route = createFileRoute("/templates/$slug")({
 function ProductDetail() {
   const { product } = Route.useLoaderData();
   const category = categoryBySlug(product.categorySlug);
-  const related = getRelatedProducts(product, 3);
+  const relatedQ = useQuery(relatedProductsQuery(product, 3));
+  const related = relatedQ.data ?? [];
   const { addToCart, toggleWishlist, isWishlisted } = useStore();
+
+  useEffect(() => {
+    trackRecentlyViewed(product.slug);
+  }, [product.slug]);
 
   const [license, setLicense] = useState<LicenseId>("commercial");
   const [activeScreen, setActiveScreen] = useState(0);
