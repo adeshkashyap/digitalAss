@@ -34,9 +34,9 @@ import { formatPrice } from "@/lib/catalog/service";
 import type { LicenseId } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
-const title = "Your cart — DevAssets";
+const title = "Your cart — ApnaCodex";
 const description =
-  "Review the templates and licenses in your DevAssets cart, apply a discount code and continue to checkout.";
+  "Review the templates and licenses in your ApnaCodex cart, apply a discount code and continue to checkout.";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -271,7 +271,7 @@ function CartRow({ line, saved = false }: { line: CartLine; saved?: boolean }) {
         params={{ slug: product.slug }}
         className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <BrowserMockup url={`devassets.io/${product.slug}`} compact>
+        <BrowserMockup url={`apnacodex.com/${product.slug}`} compact>
           <div className="aspect-[16/10]">
             <ProductScreenshot kind={product.preview} tint={product.tint} />
           </div>

@@ -34,7 +34,7 @@ import { formatPrice } from "@/lib/catalog/service";
 import type { SortKey } from "@/lib/catalog/types";
 import { cn } from "@/lib/utils";
 
-const title = "All templates — DevAssets marketplace";
+const title = "All templates — ApnaCodex marketplace";
 const description =
   "Browse 13 production-grade React templates across dashboards, SaaS, ecommerce, hospitality, education and corporate categories. Filter by technology, price and rating.";
 

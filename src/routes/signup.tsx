@@ -22,9 +22,9 @@ import { useAuth } from "@/features/auth/auth-provider";
 import { ApiError } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
-const title = "Create your DevAssets account";
+const title = "Create your ApnaCodex account";
 const description =
-  "Create a free DevAssets account to keep your purchases, license keys and template downloads together.";
+  "Create a free ApnaCodex account to keep your purchases, license keys and template downloads together.";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -204,7 +204,7 @@ function SignupPage() {
                     htmlFor="terms"
                     className="cursor-pointer text-xs font-normal leading-relaxed text-muted-foreground"
                   >
-                    I agree to the DevAssets license agreement and terms of service, and understand
+                    I agree to the ApnaCodex license agreement and terms of service, and understand
                     template source may not be redistributed.
                   </FormLabel>
                 </div>

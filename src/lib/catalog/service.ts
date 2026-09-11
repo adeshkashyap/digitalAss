@@ -1,5 +1,5 @@
 /**
- * Catalog service boundary — backed by the DevAssets REST API.
+ * Catalog service boundary — backed by the ApnaCodex REST API.
  */
 import { ApiError, api } from "@/lib/api/client";
 import type { CatalogQuery, CatalogResult, Category, Product } from "./types";

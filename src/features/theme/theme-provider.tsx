@@ -1,8 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
+import { readStorageKey } from "@/lib/storage-migrate";
+
 type Theme = "light" | "dark";
 
-const KEY = "devassets.theme";
+const KEY = "apnacodex.theme";
+const LEGACY_KEY = "devassets.theme";
 
 const ThemeContext = createContext<{
   theme: Theme;
@@ -17,7 +20,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Dark is the product's first-class theme: only an explicit stored choice
     // moves the site to light mode.
-    const stored = window.localStorage.getItem(KEY) as Theme | null;
+    const stored = readStorageKey(KEY, LEGACY_KEY) as Theme | null;
     if (stored === "light" || stored === "dark") setTheme(stored);
     setMounted(true);
   }, []);

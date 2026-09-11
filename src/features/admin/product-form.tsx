@@ -115,8 +115,8 @@ function defaults(product?: AdminProduct): FormValues {
     requirements: (product?.requirements ?? []).join("\n"),
     included: (product?.included ?? []).join("\n"),
     licenseIds: product?.licenseIds ?? ["personal", "commercial", "agency"],
-    demoUrl: product?.demoUrl ?? "https://demo.devassets.io/",
-    docsUrl: product?.docsUrl ?? "https://docs.devassets.io/",
+    demoUrl: product?.demoUrl ?? "https://demo.apnacodex.com/",
+    docsUrl: product?.docsUrl ?? "https://docs.apnacodex.com/",
     seoTitle: product?.seoTitle ?? "",
     seoDescription: product?.seoDescription ?? "",
   };

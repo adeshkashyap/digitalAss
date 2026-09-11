@@ -81,7 +81,7 @@ function AdminProducts() {
     onSuccess: async (_data, action) => {
       await invalidate();
       toast.success(`${selected.length} product${selected.length === 1 ? "" : "s"} updated`, {
-        description: `Local action: ${action}. The catalog API is not connected yet.`,
+        description: `Bulk ${action} applied via the catalog API.`,
       });
       setSelected([]);
     },
@@ -208,7 +208,7 @@ function AdminProducts() {
       <AdminPageHeader
         eyebrow="Catalog"
         title="Products"
-        description="Every asset in the DevAssets catalog with pricing, licensing, delivery metadata and trading performance."
+        description="Every asset in the ApnaCodex catalog with pricing, licensing, delivery metadata and trading performance."
         breadcrumbs={[{ label: "Products" }]}
         actions={
           <>

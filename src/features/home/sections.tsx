@@ -101,11 +101,11 @@ export function CategoryGrid() {
   );
 }
 
-export function WhyDevAssets() {
+export function WhyApnaCodex() {
   return (
     <section className="shell section-padding">
       <SectionHeader
-        eyebrow="Why DevAssets"
+        eyebrow="Why ApnaCodex"
         title="The parts most templates skip"
         description="We are opinionated about what production-ready means, and we publish the checklist we hold ourselves to."
       />
@@ -151,7 +151,7 @@ export function CuratedCollection() {
           <article className="group overflow-hidden rounded-lg border border-border bg-card">
             <div className="overflow-hidden border-b border-border p-4 sm:p-6">
               <div className="transition-transform duration-700 group-hover:scale-[1.02]">
-                <BrowserMockup url="nexus-saas.devassets.io">
+                <BrowserMockup url="nexus-saas.apnacodex.com">
                   <div className="aspect-[16/9]">
                     <ProductScreenshot kind={hero.preview} tint={hero.tint} />
                   </div>
@@ -268,7 +268,7 @@ export function LiveDemoSection() {
 
         <div className="relative min-w-0">
           <BrowserMockup
-            url="commercex.devassets.io/checkout"
+            url="commercex.apnacodex.com/checkout"
             className="shadow-[var(--shadow-lift)]"
           >
             <div className="aspect-[16/10]">

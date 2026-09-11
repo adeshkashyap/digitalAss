@@ -1,5 +1,5 @@
 /**
- * Admin service boundary — backed by the DevAssets REST API.
+ * Admin service boundary — backed by the ApnaCodex REST API.
  */
 import { api } from "@/lib/api/client";
 import type { LicenseId } from "@/lib/catalog/types";
@@ -129,6 +129,17 @@ export async function archiveCategory(slug: string): Promise<void> {
 
 export async function getAdminOrders(): Promise<AdminOrder[]> {
   return api.get<AdminOrder[]>("/api/admin/orders");
+}
+
+export async function updateOrderStatus(
+  id: string,
+  status: AdminOrder["status"],
+): Promise<AdminOrder> {
+  return api.patch<AdminOrder>(`/api/admin/orders/${id}`, { status });
+}
+
+export async function initProductDeliveryFiles(id: string): Promise<AdminProduct> {
+  return api.post<AdminProduct>(`/api/admin/products/${id}/delivery-files`);
 }
 
 export async function getAdminOrderById(id: string): Promise<AdminOrder | undefined> {

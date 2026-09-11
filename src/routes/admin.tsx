@@ -9,17 +9,17 @@ export const Route = createFileRoute("/admin")({
   },
   head: () => ({
     meta: [
-      { title: "Back office — DevAssets" },
+      { title: "Back office — ApnaCodex" },
       {
         name: "description",
         content:
-          "DevAssets marketplace operations: catalog, orders, customers, payouts, moderation and reporting.",
+          "ApnaCodex marketplace operations: catalog, orders, customers, payouts, moderation and reporting.",
       },
       { name: "robots", content: "noindex, nofollow" },
-      { property: "og:title", content: "Back office — DevAssets" },
+      { property: "og:title", content: "Back office — ApnaCodex" },
       {
         property: "og:description",
-        content: "Marketplace management workspace for the DevAssets catalog.",
+        content: "Marketplace management workspace for the ApnaCodex catalog.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

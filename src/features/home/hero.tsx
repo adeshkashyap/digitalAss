@@ -86,7 +86,7 @@ export function Hero() {
           <div className="relative mx-auto max-w-2xl pb-8 pt-6 lg:max-w-none lg:pb-0">
             <div className="float-slow">
               <BrowserMockup
-                url="react-admin-pro.devassets.io"
+                url="react-admin-pro.apnacodex.com"
                 className="shadow-[var(--shadow-lift)]"
               >
                 <div className="aspect-[16/10]">
@@ -98,7 +98,7 @@ export function Hero() {
             <div className="float-slower absolute -bottom-7 -left-2 w-[52%] sm:-left-8 sm:-bottom-10">
               <BrowserMockup
                 compact
-                url="stayora.devassets.io"
+                url="stayora.apnacodex.com"
                 className="shadow-[var(--shadow-lift)]"
               >
                 <div className="aspect-[16/11]">
@@ -110,7 +110,7 @@ export function Hero() {
             <div className="float-slow absolute -right-3 -top-8 hidden w-[38%] sm:block sm:-right-6">
               <BrowserMockup
                 compact
-                url="commercex.devassets.io"
+                url="commercex.apnacodex.com"
                 className="shadow-[var(--shadow-lift)]"
               >
                 <div className="aspect-[16/12]">
@@ -122,7 +122,7 @@ export function Hero() {
             <div className="float-slower absolute -right-2 bottom-4 hidden w-[34%] lg:block">
               <BrowserMockup
                 compact
-                url="dineflow.devassets.io"
+                url="dineflow.apnacodex.com"
                 className="shadow-[var(--shadow-lift)]"
               >
                 <div className="aspect-[16/12]">

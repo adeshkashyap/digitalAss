@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { PageHero } from "@/features/catalog/page-hero";
 import { principles, qualityChecklist, workflow } from "@/lib/catalog/content";
 
-const title = "About DevAssets — a quality-first template marketplace";
+const title = "About ApnaCodex — a quality-first template marketplace";
 const description =
-  "How DevAssets builds and reviews templates: production-minded UI, clean architecture, a published quality checklist and versioned updates.";
+  "How ApnaCodex builds and reviews templates: production-minded UI, clean architecture, a published quality checklist and versioned updates.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -49,9 +49,9 @@ function AboutPage() {
     <>
       <PageHero
         crumbs={[{ label: "Home", to: "/" }, { label: "About" }]}
-        eyebrow="About DevAssets"
+        eyebrow="About ApnaCodex"
         title="Templates that survive contact with real projects"
-        description="DevAssets exists because most templates are demos: beautiful until you add real data, real permissions and a client who publishes 2,000 words on a services page. We build for that day instead."
+        description="ApnaCodex exists because most templates are demos: beautiful until you add real data, real permissions and a client who publishes 2,000 words on a services page. We build for that day instead."
       />
 
       <section className="shell grid gap-12 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-20">
@@ -79,7 +79,7 @@ function AboutPage() {
           </Button>
         </div>
         <div className="min-w-0">
-          <BrowserMockup url="devassets.io/review" className="shadow-[var(--shadow-lift)]">
+          <BrowserMockup url="apnacodex.com/review" className="shadow-[var(--shadow-lift)]">
             <div className="aspect-[16/10]">
               <ProductScreenshot kind="analytics" tint="violet" />
             </div>

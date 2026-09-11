@@ -461,7 +461,7 @@ export function AdminThumb({
   className?: string;
 }) {
   return (
-    <BrowserMockup compact url={`${slug}.devassets.io`} className={cn("h-full", className)}>
+    <BrowserMockup compact url={`${slug}.apnacodex.com`} className={cn("h-full", className)}>
       <div className="aspect-[16/9.2]">
         <ProductScreenshot kind={preview} tint={tint} />
       </div>

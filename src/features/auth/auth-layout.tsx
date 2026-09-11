@@ -46,7 +46,7 @@ export function AuthLayout({
         </div>
 
         <div className="preview-enter relative hidden min-w-0 lg:block">
-          <BrowserMockup url="devassets.io/library" className="shadow-[var(--shadow-lift)]">
+          <BrowserMockup url="apnacodex.com/library" className="shadow-[var(--shadow-lift)]">
             <div className="aspect-[16/10]">
               <ProductScreenshot kind="dashboard" tint="violet" />
             </div>

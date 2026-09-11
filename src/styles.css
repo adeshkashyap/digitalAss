@@ -11,7 +11,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * DevAssets design system.
+ * ApnaCodex design system.
  * Dark-first, near-black surfaces, editorial typography, electric indigo /
  * violet / cyan accents. All colors are oklch tokens. Never hardcode colors
  * in components — add a token here and register it in @theme inline.

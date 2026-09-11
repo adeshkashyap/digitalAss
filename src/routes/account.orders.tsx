@@ -42,7 +42,7 @@ import { formatDate, formatPrice } from "@/lib/catalog/service";
 export const Route = createFileRoute("/account/orders")({
   head: () => ({
     meta: [
-      { title: "Orders & billing — DevAssets account" },
+      { title: "Orders & billing — ApnaCodex account" },
       { name: "description", content: "Order history, invoices and license summaries." },
       { name: "robots", content: "noindex, nofollow" },
     ],

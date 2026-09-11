@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/account/purchases")({
   head: () => ({
     meta: [
-      { title: "My purchases — DevAssets account" },
+      { title: "My purchases — ApnaCodex account" },
       {
         name: "description",
         content: "Every template you own, with license, version and download details.",

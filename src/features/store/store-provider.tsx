@@ -13,8 +13,12 @@ import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 import { licenseById } from "@/lib/catalog/licenses";
 import type { CartItem, LicenseId, Product } from "@/lib/catalog/types";
 
-const CART_KEY = "devassets.cart.v1";
-const WISHLIST_KEY = "devassets.wishlist.v1";
+import { readStorageKey } from "@/lib/storage-migrate";
+
+const CART_KEY = "apnacodex.cart.v1";
+const LEGACY_CART_KEY = "devassets.cart.v1";
+const WISHLIST_KEY = "apnacodex.wishlist.v1";
+const LEGACY_WISHLIST_KEY = "devassets.wishlist.v1";
 
 export interface CartLine extends CartItem {
   product: Product;
@@ -51,10 +55,10 @@ interface StoreValue {
 
 const StoreContext = createContext<StoreValue | null>(null);
 
-function read<T>(key: string, fallback: T): T {
+function read<T>(key: string, legacyKey: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
-    const raw = window.localStorage.getItem(key);
+    const raw = readStorageKey(key, legacyKey);
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
@@ -87,8 +91,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const { productsById, isLoading: cartLoading } = useProductsByIds(productIds);
 
   useEffect(() => {
-    setCart(read<CartItem[]>(CART_KEY, []));
-    setWishlist(read<string[]>(WISHLIST_KEY, []));
+    setCart(read<CartItem[]>(CART_KEY, LEGACY_CART_KEY, []));
+    setWishlist(read<string[]>(WISHLIST_KEY, LEGACY_WISHLIST_KEY, []));
     setHydrated(true);
   }, []);
 

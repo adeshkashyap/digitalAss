@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/account/notifications")({
   head: () => ({
     meta: [
-      { title: "Notifications — DevAssets account" },
+      { title: "Notifications — ApnaCodex account" },
       {
         name: "description",
         content: "Product updates, purchase confirmations and download notices.",

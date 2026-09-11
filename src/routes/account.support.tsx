@@ -44,7 +44,7 @@ import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 export const Route = createFileRoute("/account/support")({
   head: () => ({
     meta: [
-      { title: "Help & support — DevAssets account" },
+      { title: "Help & support — ApnaCodex account" },
       {
         name: "description",
         content: "Get help with orders, downloads, licenses and billing questions.",

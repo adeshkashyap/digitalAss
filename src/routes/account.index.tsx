@@ -42,10 +42,10 @@ import { licenseById } from "@/lib/catalog/licenses";
 export const Route = createFileRoute("/account/")({
   head: () => ({
     meta: [
-      { title: "Account overview — DevAssets" },
+      { title: "Account overview — ApnaCodex" },
       {
         name: "description",
-        content: "Your DevAssets library at a glance: purchases, downloads and licenses.",
+        content: "Your ApnaCodex library at a glance: purchases, downloads and licenses.",
       },
       { name: "robots", content: "noindex, nofollow" },
     ],

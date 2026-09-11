@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CreditCard, Download, FileText, LifeBuoy, Receipt, RotateCcw, User } from "lucide-react";
+import { CreditCard, Download, FileText, LifeBuoy, Receipt, RotateCcw, User, XCircle } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 
@@ -22,7 +22,7 @@ import {
 } from "@/features/admin/admin-ui";
 import { useAdminCustomerMap } from "@/lib/admin/use-admin-customers";
 import { adminOrderQuery } from "@/lib/admin/queries";
-import { formatDateTime, formatMoney } from "@/lib/admin/service";
+import { formatDateTime, formatMoney, updateOrderStatus } from "@/lib/admin/service";
 import type { AdminOrderStatus } from "@/lib/admin/types";
 import { licenseById } from "@/lib/catalog/licenses";
 import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
@@ -39,7 +39,16 @@ const orderTone: Record<AdminOrderStatus, Tone> = {
 
 function AdminOrderDetail() {
   const { orderId } = Route.useParams();
+  const queryClient = useQueryClient();
   const { data: order, isPending, isError, refetch } = useQuery(adminOrderQuery(orderId));
+  const statusChange = useMutation({
+    mutationFn: (status: AdminOrderStatus) => updateOrderStatus(orderId, status),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["admin"], exact: false });
+      toast.success("Order status updated");
+    },
+    onError: () => toast.error("Could not update order status"),
+  });
   const customerMap = useAdminCustomerMap();
   const productIds = useMemo(() => order?.lines.map((l) => l.productId) ?? [], [order?.lines]);
   const { productsById } = useProductsByIds(productIds);
@@ -112,18 +121,29 @@ function AdminOrderDetail() {
             >
               <FileText /> Invoice
             </Button>
-            <Button
-              variant="subtle"
-              size="sm"
-              onClick={() =>
-                toast.info("Refunds are not available yet", {
-                  description:
-                    "This workspace has no payment provider connected, so nothing can be refunded.",
-                })
-              }
-            >
-              <RotateCcw /> Refund
-            </Button>
+            {order.status === "pending" && (
+              <Button
+                variant="subtle"
+                size="sm"
+                onClick={() => statusChange.mutate("cancelled")}
+                disabled={statusChange.isPending}
+              >
+                <XCircle /> Cancel order
+              </Button>
+            )}
+            {order.status === "paid" && (
+              <Button
+                variant="subtle"
+                size="sm"
+                onClick={() =>
+                  toast.info("Refunds require payment integration", {
+                    description: "Stripe refunds will be enabled in the payments phase.",
+                  })
+                }
+              >
+                <RotateCcw /> Refund
+              </Button>
+            )}
           </>
         }
       />

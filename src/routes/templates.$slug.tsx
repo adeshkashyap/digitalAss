@@ -49,11 +49,11 @@ export const Route = createFileRoute("/templates/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Template not found — DevAssets" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Template not found — ApnaCodex" }, { name: "robots", content: "noindex" }],
       };
     }
     const { product } = loaderData;
-    const title = `${product.name} — ${product.tagline} | DevAssets`;
+    const title = `${product.name} — ${product.tagline} | ApnaCodex`;
     const description = product.summary.slice(0, 155);
     return {
       meta: [
@@ -167,7 +167,7 @@ function ProductDetail() {
 
           <div className="mt-8">
             <BrowserMockup
-              url={`${product.slug}.devassets.io${activeScreen === 0 ? "" : `/${screen.label.toLowerCase()}`}`}
+              url={`${product.slug}.apnacodex.com${activeScreen === 0 ? "" : `/${screen.label.toLowerCase()}`}`}
               className="shadow-[var(--shadow-lift)]"
             >
               <div className="aspect-[16/10]">

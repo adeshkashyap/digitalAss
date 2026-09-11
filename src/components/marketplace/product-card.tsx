@@ -39,7 +39,7 @@ export function ProductCard({
       <div className="relative overflow-hidden border-b border-border bg-surface-2 p-3">
         <div className="relative aspect-[16/10] overflow-hidden rounded-md">
           <div className="h-full w-full transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] lg:group-hover:scale-[1.04]">
-            <BrowserMockup compact url={`${product.slug}.devassets.io`} className="h-full">
+            <BrowserMockup compact url={`${product.slug}.apnacodex.com`} className="h-full">
               <div className="aspect-[16/9.2]">
                 <ProductScreenshot kind={product.preview} tint={product.tint} />
               </div>

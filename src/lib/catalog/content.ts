@@ -12,7 +12,7 @@ export const testimonials: Testimonial[] = [
   {
     id: "t1",
     quote:
-      "We evaluated four marketplaces and DevAssets was the only one where reading the source made me more confident, not less.",
+      "We evaluated four marketplaces and ApnaCodex was the only one where reading the source made me more confident, not less.",
     author: "Marcus Feld",
     role: "Staff Engineer, logistics platform",
     initials: "MF",

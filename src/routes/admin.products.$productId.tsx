@@ -40,6 +40,7 @@ import {
   deleteProduct,
   formatMoney,
   formatNumber,
+  initProductDeliveryFiles,
   setProductFeatured,
   setProductStatus,
   updateProduct,
@@ -63,8 +64,16 @@ function ManageProduct() {
     mutationFn: (next: "published" | "draft" | "archived") => setProductStatus(productId, next),
     onSuccess: async (_d, next) => {
       await invalidate();
-      toast.success(`Status set to ${next}`, {
-        description: "Stored locally in the demo workspace.",
+      toast.success(`Status set to ${next}`);
+    },
+  });
+
+  const deliveryFiles = useMutation({
+    mutationFn: () => initProductDeliveryFiles(productId),
+    onSuccess: async () => {
+      await invalidate();
+      toast.success("Delivery file paths configured", {
+        description: "Upload archives to Cloud Storage using the listed object paths.",
       });
     },
   });
@@ -212,20 +221,17 @@ function ManageProduct() {
                     <Button
                       variant="subtle"
                       size="sm"
-                      onClick={() =>
-                        toast.info("Uploads are not available yet", {
-                          description:
-                            "Archive uploads require secure storage and signed URLs, which arrive with the backend phase.",
-                        })
-                      }
+                      onClick={() => deliveryFiles.mutate()}
+                      disabled={deliveryFiles.isPending}
                     >
-                      <Upload /> Upload
+                      <Upload /> Configure paths
                     </Button>
                   }
                 />
                 {product.files.length === 0 ? (
                   <p className="px-5 py-8 text-sm text-muted-foreground">
-                    No files are attached to this product in the demo workspace.
+                    No delivery files configured yet. Use Configure paths to generate Cloud Storage
+                    object paths for this product.
                   </p>
                 ) : (
                   <ul className="divide-y divide-border">

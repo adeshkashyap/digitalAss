@@ -123,8 +123,8 @@ export function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} DevAssets. All rights reserved.</p>
-          <p className="font-mono">Public marketplace preview · checkout is not connected</p>
+          <p>© {new Date().getFullYear()} ApnaCodex. All rights reserved.</p>
+          <p className="font-mono">Payments launching soon · catalog and accounts are live</p>
         </div>
       </div>
     </footer>

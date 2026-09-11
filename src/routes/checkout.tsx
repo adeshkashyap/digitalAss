@@ -46,9 +46,9 @@ import { getAuthToken } from "@/lib/api/auth-storage";
 import { formatPrice } from "@/lib/catalog/service";
 import { cn } from "@/lib/utils";
 
-const title = "Checkout — DevAssets";
+const title = "Checkout — ApnaCodex";
 const description =
-  "Complete your DevAssets order: contact details, billing information and license summary before secure payment.";
+  "Complete your ApnaCodex order: contact details, billing information and license summary before secure payment.";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -437,7 +437,7 @@ function CheckoutPage() {
                     <p className="text-sm font-medium">Secure payment via Stripe Checkout</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                       You will be redirected to Stripe to enter card details. No card data is stored
-                      on DevAssets servers.
+                      on ApnaCodex servers.
                     </p>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 /**
- * Domain types for the DevAssets marketplace.
+ * Domain types for the ApnaCodex marketplace.
  *
  * These mirror the shapes the future Node/Express + Prisma REST API will
  * return, so the mock layer can be swapped for `fetch` calls without touching

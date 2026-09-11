@@ -240,7 +240,7 @@ function AdminOrders() {
                   </Link>
                   <StatusBadge tone={orderTone[o.status]}>{label(o.status)}</StatusBadge>
                 </div>
-                <p className="truncate text-sm">{customer(o.customerId)?.name}</p>
+                <p className="truncate text-sm">{customerMap.get(o.customerId)?.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDateTime(o.placedAt)} · {o.lines.length} item
                   {o.lines.length === 1 ? "" : "s"}

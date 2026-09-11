@@ -1,5 +1,5 @@
 /**
- * Customer account service boundary — backed by the DevAssets REST API.
+ * Customer account service boundary — backed by the ApnaCodex REST API.
  */
 import { api } from "@/lib/api/client";
 import type {
@@ -61,6 +61,7 @@ export async function recordDownload(args: {
   return api.post<DownloadEvent>(`/api/me/downloads/${args.purchaseId}`, {
     fileLabel: args.file.label,
     version: args.file.version,
+    objectPath: args.file.objectPath,
   });
 }
 
@@ -115,7 +116,7 @@ export const formatDateTime = (iso: string) =>
     new Date(iso),
   );
 
-const RECENT_KEY = "devassets.recently-viewed";
+const RECENT_KEY = "apnacodex.recently-viewed";
 
 export function getRecentlyViewedSlugs(): string[] {
   if (typeof window === "undefined") return [];

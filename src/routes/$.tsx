@@ -3,9 +3,9 @@ import { ArrowRight, Compass, Home, LifeBuoy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-const title = "Page not found — DevAssets";
+const title = "Page not found — ApnaCodex";
 const description =
-  "That page does not exist. Head back to the DevAssets catalog to keep browsing production-ready templates.";
+  "That page does not exist. Head back to the ApnaCodex catalog to keep browsing production-ready templates.";
 
 export const Route = createFileRoute("/$")({
   head: () => ({

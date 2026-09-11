@@ -218,7 +218,7 @@ export function ProductThumb({
     );
   }
   return (
-    <BrowserMockup compact url={`${product.slug}.devassets.io`} className={cn("h-full", className)}>
+    <BrowserMockup compact url={`${product.slug}.apnacodex.com`} className={cn("h-full", className)}>
       <div className="aspect-[16/9.2]">{screenshot}</div>
     </BrowserMockup>
   );

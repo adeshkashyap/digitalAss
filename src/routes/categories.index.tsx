@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { PageHero } from "@/features/catalog/page-hero";
 import { categoriesQuery } from "@/lib/catalog/queries";
 
-const title = "Template categories — DevAssets";
+const title = "Template categories — ApnaCodex";
 const description =
-  "Explore DevAssets by industry: admin dashboards, SaaS, ecommerce, hospitality, restaurant, education, corporate, portfolio and landing pages.";
+  "Explore ApnaCodex by industry: admin dashboards, SaaS, ecommerce, hospitality, restaurant, education, corporate, portfolio and landing pages.";
 
 export const Route = createFileRoute("/categories/")({
   head: () => ({

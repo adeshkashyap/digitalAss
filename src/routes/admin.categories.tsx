@@ -289,7 +289,7 @@ function AdminCategories() {
                   name: draft.name.trim(),
                   description: draft.description.trim(),
                   status: "active",
-                  seoTitle: `${draft.name.trim()} templates — DevAssets`,
+                  seoTitle: `${draft.name.trim()} templates — ApnaCodex`,
                   seoDescription: draft.description.trim().slice(0, 155),
                 });
                 await invalidate();

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Mac-style browser frame used as the visual anchor for template previews. */
 export function BrowserMockup({
-  url = "devassets.io/demo",
+  url = "apnacodex.com/demo",
   children,
   className,
   compact = false,

@@ -1,9 +1,12 @@
-const TOKEN_KEY = "devassets.auth.token";
+import { readStorageKey } from "@/lib/storage-migrate";
+
+const TOKEN_KEY = "apnacodex.auth.token";
+const LEGACY_TOKEN_KEY = "devassets.auth.token";
 
 export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(TOKEN_KEY);
+    return readStorageKey(TOKEN_KEY, LEGACY_TOKEN_KEY);
   } catch {
     return null;
   }

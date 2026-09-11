@@ -73,6 +73,7 @@ export interface DownloadFile {
   fileType: string;
   size: string;
   version: string;
+  objectPath?: string;
 }
 
 export interface DownloadItem {
@@ -93,6 +94,7 @@ export interface DownloadEvent {
   version: string;
   fileLabel: string;
   status: "completed" | "expired" | "failed";
+  downloadUrl?: string;
 }
 
 export type LicenseStatus = "active" | "updates-expired" | "refunded";

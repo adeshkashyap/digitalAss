@@ -281,7 +281,7 @@ export function AccountShell() {
 
           <footer className="border-t border-border px-4 py-6 text-xs text-muted-foreground sm:px-6 lg:px-8">
             <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-4 gap-y-2">
-              <span>DevAssets account — sample data preview</span>
+              <span>ApnaCodex account</span>
               <Link to="/account/support" className="transition-colors hover:text-foreground">
                 Help &amp; support
               </Link>

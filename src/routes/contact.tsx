@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageHero } from "@/features/catalog/page-hero";
 import { contactTopics } from "@/lib/catalog/content";
 
-const title = "Contact DevAssets support";
+const title = "Contact ApnaCodex support";
 const description =
   "Ask about licensing, technical setup, invoices or bulk purchases. Pre-sales questions answered within one business day.";
 

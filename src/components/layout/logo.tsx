@@ -7,7 +7,7 @@ export function Logo({ className }: { className?: string }) {
     <Link
       to="/"
       className={cn("group flex shrink-0 items-center gap-2.5", className)}
-      aria-label="DevAssets home"
+      aria-label="ApnaCodex home"
     >
       <span className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-lg bg-brand-gradient">
         <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden>
@@ -28,7 +28,7 @@ export function Logo({ className }: { className?: string }) {
         </svg>
       </span>
       <span className="font-display text-[1.0625rem] font-semibold tracking-tight">
-        Dev<span className="text-brand">Assets</span>
+        Apna<span className="text-brand">Codex</span>
       </span>
     </Link>
   );

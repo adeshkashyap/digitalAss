@@ -87,13 +87,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DevAssets — Production-ready web templates" },
+      { title: "ApnaCodex — Production-ready web templates" },
       {
         name: "description",
         content:
           "Premium React, SaaS, ecommerce and industry templates engineered for real products.",
       },
-      { property: "og:site_name", content: "DevAssets" },
+      { property: "og:site_name", content: "ApnaCodex" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#101018" },
@@ -109,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem("devassets.theme");var d=t!=="light";document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}})();`;
+const themeInitScript = `(function(){try{var t=localStorage.getItem("apnacodex.theme");if(t===null)t=localStorage.getItem("devassets.theme");var d=t!=="light";document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}})();`;
 
 function RootShell({ children }: { children: ReactNode }) {
   return (

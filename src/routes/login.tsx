@@ -21,9 +21,9 @@ import { AuthLayout, SocialButtons } from "@/features/auth/auth-layout";
 import { useAuth } from "@/features/auth/auth-provider";
 import { ApiError } from "@/lib/api/client";
 
-const title = "Sign in — DevAssets";
+const title = "Sign in — ApnaCodex";
 const description =
-  "Sign in to your DevAssets account to reach your purchases, license keys and template downloads.";
+  "Sign in to your ApnaCodex account to reach your purchases, license keys and template downloads.";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -80,7 +80,7 @@ function LoginPage() {
       ]}
       footer={
         <>
-          New to DevAssets?{" "}
+          New to ApnaCodex?{" "}
           <Link to="/signup" className="font-medium text-brand underline-offset-4 hover:underline">
             Create an account
           </Link>

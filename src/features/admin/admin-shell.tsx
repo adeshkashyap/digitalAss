@@ -195,7 +195,7 @@ export function AdminShell() {
               </Link>
             </Button>
             <p className="px-1 text-[11px] leading-relaxed text-muted-foreground">
-              Sample workspace. Payments, storage and email are not connected.
+              Live catalog and orders. Payments arrive in the final integration phase.
             </p>
           </div>
         </aside>
@@ -239,7 +239,7 @@ export function AdminShell() {
               </Sheet>
 
               <div className="min-w-0 lg:pl-1">
-                <p className="eyebrow hidden text-[0.625rem] sm:block">DevAssets operations</p>
+                <p className="eyebrow hidden text-[0.625rem] sm:block">ApnaCodex operations</p>
                 <p className="truncate text-sm font-semibold tracking-tight">{current.title}</p>
               </div>
 
@@ -301,7 +301,7 @@ export function AdminShell() {
 
           <footer className="border-t border-border px-4 py-6 text-xs text-muted-foreground sm:px-6 lg:px-8">
             <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-4 gap-y-2">
-              <span>DevAssets back office — sample operations data</span>
+              <span>ApnaCodex back office</span>
               <Link to="/admin/settings" className="transition-colors hover:text-foreground">
                 Settings
               </Link>

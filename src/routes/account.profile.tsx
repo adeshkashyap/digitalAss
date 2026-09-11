@@ -28,7 +28,7 @@ import type { CustomerUser } from "@/lib/account/types";
 export const Route = createFileRoute("/account/profile")({
   head: () => ({
     meta: [
-      { title: "Profile & settings — DevAssets account" },
+      { title: "Profile & settings — ApnaCodex account" },
       { name: "description", content: "Manage your profile, notification preferences and theme." },
       { name: "robots", content: "noindex, nofollow" },
     ],
@@ -280,7 +280,7 @@ function ProfilePage() {
             <Panel className="overflow-hidden">
               <PanelHeader
                 title="Email preferences"
-                description="Choose what DevAssets sends you."
+                description="Choose what ApnaCodex sends you."
                 icon={ShieldCheck}
               />
               <div className="divide-y divide-border">

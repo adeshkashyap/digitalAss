@@ -9,9 +9,9 @@ import { PageHero } from "@/features/catalog/page-hero";
 import { pricingFaqs } from "@/lib/catalog/content";
 import { licenses } from "@/lib/catalog/licenses";
 
-const title = "Licensing & pricing — DevAssets";
+const title = "Licensing & pricing — ApnaCodex";
 const description =
-  "Simple one-time licensing for DevAssets templates: Personal, Commercial and Agency. Compare what each license covers, with no subscription.";
+  "Simple one-time licensing for ApnaCodex templates: Personal, Commercial and Agency. Compare what each license covers, with no subscription.";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({

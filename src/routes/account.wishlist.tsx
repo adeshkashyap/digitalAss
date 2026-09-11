@@ -30,8 +30,8 @@ import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 export const Route = createFileRoute("/account/wishlist")({
   head: () => ({
     meta: [
-      { title: "Wishlist — DevAssets account" },
-      { name: "description", content: "Templates you saved for later on DevAssets." },
+      { title: "Wishlist — ApnaCodex account" },
+      { name: "description", content: "Templates you saved for later on ApnaCodex." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

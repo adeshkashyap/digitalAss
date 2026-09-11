@@ -25,7 +25,7 @@ import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 export const Route = createFileRoute("/account/downloads")({
   head: () => ({
     meta: [
-      { title: "Downloads — DevAssets account" },
+      { title: "Downloads — ApnaCodex account" },
       {
         name: "description",
         content: "Source builds, documentation and release notes for every template you own.",

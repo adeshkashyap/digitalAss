@@ -11,10 +11,10 @@ import {
   PricingTeaser,
   TechStrip,
   Testimonials,
-  WhyDevAssets,
+  WhyApnaCodex,
 } from "@/features/home/sections";
 
-const title = "DevAssets — Production-ready React & business website templates";
+const title = "ApnaCodex — Production-ready React & business website templates";
 const description =
   "Premium React, SaaS, ecommerce, hospitality and corporate templates engineered for real products. Full TypeScript source, designed edge cases and clear licensing.";
 
@@ -39,7 +39,7 @@ function Home() {
       <TechStrip />
       <FeaturedTemplates />
       <CategoryGrid />
-      <WhyDevAssets />
+      <WhyApnaCodex />
       <CuratedCollection />
       <LiveDemoSection />
       <Testimonials />

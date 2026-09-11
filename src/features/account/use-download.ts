@@ -7,11 +7,7 @@ import { recordDownload } from "@/lib/account/service";
 import type { DownloadFile } from "@/lib/account/types";
 import { useProductsByIds } from "@/lib/catalog/use-products-by-ids";
 
-/**
- * Local download action. It records the event and reports progress honestly:
- * no file is transferred because artifact storage and signed URLs arrive with
- * the backend phase.
- */
+/** Records a download event and opens a signed URL when storage is configured. */
 export function useDownloadAction() {
   const queryClient = useQueryClient();
   const [pendingFileId, setPendingFileId] = useState<string | null>(null);
@@ -29,10 +25,17 @@ export function useDownloadAction() {
     mutationFn: (args: { purchaseId: string; productId: string; file: DownloadFile }) =>
       recordDownload(args),
     onMutate: (args) => setPendingFileId(args.file.id),
-    onSuccess: (_event, args) => {
+    onSuccess: (event, args) => {
       const product = productsById.get(args.productId);
-      toast.success(`${args.file.label} prepared`, {
-        description: `${product?.name ?? "Template"} v${args.file.version} — demo download only, no file was transferred yet.`,
+      if (event.downloadUrl) {
+        window.open(event.downloadUrl, "_blank", "noopener,noreferrer");
+        toast.success(`${args.file.label} ready`, {
+          description: `${product?.name ?? "Template"} v${args.file.version} opened in a new tab.`,
+        });
+        return;
+      }
+      toast.error("File not available yet", {
+        description: `${product?.name ?? "Template"} — upload the archive to Cloud Storage first.`,
       });
     },
     onError: () =>

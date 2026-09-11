@@ -19,11 +19,11 @@ export const Route = createFileRoute("/categories/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Category not found — DevAssets" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Category not found — ApnaCodex" }, { name: "robots", content: "noindex" }],
       };
     }
     const { category, products } = loaderData;
-    const title = `${category.name} templates — DevAssets`;
+    const title = `${category.name} templates — ApnaCodex`;
     const description = `${products.length} production-ready ${category.name.toLowerCase()} templates. ${category.description}`;
     return {
       meta: [
